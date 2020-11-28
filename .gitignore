@@ -21,3 +21,6 @@ gradle-app.setting
 
 # Ignore downloaded files
 download/
+
+# Ignore script outputs
+output/

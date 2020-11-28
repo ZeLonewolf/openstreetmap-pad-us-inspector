@@ -1,60 +1,93 @@
 package com.streetferret.opus;
 
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedMap;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class WikiGenerator {
-	public static void generateWiki(String state, SortedMap<String, ProtectedAreaTagging> map) throws IOException {
+	public static void generateWiki(String state, SortedMap<String, List<ProtectedAreaTagging>> mapList)
+			throws IOException {
 
-		StringBuilder rowBuilder = new StringBuilder();
+		try (PrintStream wikiPrint = new PrintStream("output" + File.separator + state + ".wiki")) {
 
-		map.entrySet().forEach(e -> {
-			if (isValidIUCN(e)) {
-				ProtectedAreaTagging tagging = e.getValue();
+			StringBuilder rowBuilder = new StringBuilder();
 
-				String color = getRowColor(tagging);
+			mapList.entrySet().forEach(e -> {
+				if (isValidIUCN(e)) {
 
-				rowBuilder.append("|- bgcolor=\"");
-				rowBuilder.append(color);
-				rowBuilder.append("\"\n");
+					Set<String> padClasses = new TreeSet<>();
 
-				// Name
-				rowBuilder.append("|");
-				rowBuilder.append(e.getKey());
-				rowBuilder.append("\n");
+					for (ProtectedAreaTagging tagging : e.getValue()) {
+						if (VALID_IUCN.contains(tagging.getIucnClass())) {
+							padClasses.add(tagging.getIucnClass());
+						}
+					}
 
-				// IUCN Cat
-				rowBuilder.append("|");
-				rowBuilder.append(tagging.getIucnClass());
-				rowBuilder.append("\n");
+					String padClassStr = padClasses.stream().collect(Collectors.joining(", "));
 
-				rowBuilder.append("|\n");
-				rowBuilder.append("|\n");
-			}
+					String color = getRowColor(padClasses);
+					String name = e.getKey();
+					String actualUse = "";
 
-		});
+					try {
+						actualUse = OverpassLookup.overpassProtectedAreaLookup(name);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 
-		SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy");
-		
-		InputStream inputStream = WikiGenerator.class.getResourceAsStream("/pad.wiki");
-		String wikiTemplate = readFromInputStream(inputStream);
-		wikiTemplate = wikiTemplate.replace("$STATE", state);
-		wikiTemplate = wikiTemplate.replace("$DATE", sdf.format(new Date()));
-		wikiTemplate = wikiTemplate.replace("$TABLE", rowBuilder.toString());
+					rowBuilder.append("|- bgcolor=\"");
+					rowBuilder.append(color);
+					rowBuilder.append("\"\n");
 
-		System.out.println(wikiTemplate);
+					// Name
+					rowBuilder.append("|");
+					rowBuilder.append(name);
+					rowBuilder.append("\n");
+
+					// IUCN Cat
+					rowBuilder.append("|");
+					rowBuilder.append(padClassStr);
+					rowBuilder.append("\n");
+
+					rowBuilder.append("|");
+					rowBuilder.append(actualUse);
+					rowBuilder.append("\n");
+
+					System.out.println("Generated wiki for " + name);
+				}
+
+			});
+
+			SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy");
+
+			InputStream inputStream = WikiGenerator.class.getResourceAsStream("/pad.wiki");
+			String wikiTemplate = StringUtil.readFromInputStream(inputStream);
+			wikiTemplate = wikiTemplate.replace("$STATE", state);
+			wikiTemplate = wikiTemplate.replace("$DATE", sdf.format(new Date()));
+			wikiTemplate = wikiTemplate.replace("$TABLE", rowBuilder.toString());
+
+			wikiPrint.println(wikiTemplate);
+		}
 	}
 
-	private static String getRowColor(ProtectedAreaTagging tagging) {
-		switch (tagging.getIucnClass()) {
+	private static String getRowColor(Set<String> padClasses) {
+
+		if (padClasses.size() > 1) {
+			return "#fff";
+		}
+
+		switch (padClasses.iterator().next()) {
 		case "Ia":
 			return "#fcc";
 		case "Ib":
@@ -75,19 +108,12 @@ public class WikiGenerator {
 
 	private static final List<String> VALID_IUCN = Arrays.asList("Ia", "Ib", "II", "III", "IV", "V", "VI");
 
-	private static boolean isValidIUCN(Entry<String, ProtectedAreaTagging> e) {
-		ProtectedAreaTagging tagging = e.getValue();
-		return VALID_IUCN.contains(tagging.getIucnClass());
-	}
+	private static boolean isValidIUCN(Entry<String, List<ProtectedAreaTagging>> e) {
 
-	private static String readFromInputStream(InputStream inputStream) throws IOException {
-		StringBuilder resultStringBuilder = new StringBuilder();
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-			String line;
-			while ((line = br.readLine()) != null) {
-				resultStringBuilder.append(line).append("\n");
-			}
+		for (ProtectedAreaTagging tagging : e.getValue()) {
+			if (VALID_IUCN.contains(tagging.getIucnClass()))
+				return true;
 		}
-		return resultStringBuilder.toString();
+		return false;
 	}
 }

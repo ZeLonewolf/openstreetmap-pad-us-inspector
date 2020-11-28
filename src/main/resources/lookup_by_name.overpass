@@ -1,0 +1,6 @@
+[timeout:180][out:csv(::type,::id,name,protect_class,iucn_level;false;"|")];
+(
+way["name"="$NAME"]["boundary"="protected_area"];
+rel["name"="$NAME"]["boundary"="protected_area"];
+);
+out body;
