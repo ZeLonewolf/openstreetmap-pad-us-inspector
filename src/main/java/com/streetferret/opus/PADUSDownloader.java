@@ -3,7 +3,6 @@ package com.streetferret.opus;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -24,6 +23,7 @@ public class PADUSDownloader {
 		}
 
 		Paths.get("download", "kmz").toFile().mkdirs();
+		Paths.get("download", "kmz-layer").toFile().mkdirs();
 		Paths.get("download", "kml").toFile().mkdirs();
 
 		Pattern p = Pattern.compile("<a href=\"(.*?)\".*?>([A-Za-z\\s]*?)<\\/a>");
@@ -39,10 +39,10 @@ public class PADUSDownloader {
 
 			String state = stateString.replace("KMZ", "").trim();
 
-			System.out.println(dlURL);
 			System.out.print("Downloading KMZ for " + state + ".");
 
 			File stateFileZ = Paths.get("download", "kmz", state + ".kmz").toFile();
+			File stateFileL = Paths.get("download", "kmz-layer", state + ".kmz").toFile();
 			File stateFile = Paths.get("download", "kml", state + ".kml").toFile();
 
 			if (!stateFileZ.exists()) {
@@ -50,10 +50,16 @@ public class PADUSDownloader {
 				Files.copy(in, stateFileZ.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			}
 
-			System.out.print("..");
+			System.out.print(".");
+
+			if (!stateFileL.exists()) {
+				ZipUtil.unzipKMLLayer(stateFileZ, stateFileL);
+			}
+
+			System.out.print(".");
 
 			if (!stateFile.exists()) {
-				ZipUtil.unzipKMLLayer(stateFileZ, stateFile);
+				ZipUtil.unzipKML(stateFileL, stateFile);
 			}
 
 			System.out.println("done!");
