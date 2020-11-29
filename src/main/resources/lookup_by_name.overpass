@@ -1,7 +1,5 @@
 [timeout:180][out:csv(::type,::id,name,protect_class,iucn_level;false;"|")];
 area($AREA)->.searchArea;
-
 nwr["name"="$NAME"]["boundary"]["protect_class"];
-
 nwr._(area.searchArea);
 out body;
