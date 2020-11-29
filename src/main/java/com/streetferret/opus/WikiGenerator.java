@@ -53,14 +53,6 @@ public class WikiGenerator {
 					rowBuilder.append("{{PADUS_problem_row|");
 					rowBuilder.append(name);
 					rowBuilder.append("|");
-					rowBuilder.append(defaultTagging.getMinLon());
-					rowBuilder.append("|");
-					rowBuilder.append(defaultTagging.getMinLat());
-					rowBuilder.append("|");
-					rowBuilder.append(defaultTagging.getMaxLon());
-					rowBuilder.append("|");
-					rowBuilder.append(defaultTagging.getMaxLat());
-					rowBuilder.append("|");
 					rowBuilder.append(state);
 					rowBuilder.append("|");
 					rowBuilder.append(actualUse);
