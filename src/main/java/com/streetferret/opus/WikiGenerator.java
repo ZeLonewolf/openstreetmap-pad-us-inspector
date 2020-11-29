@@ -37,6 +37,9 @@ public class WikiGenerator {
 
 				String color = getRowColor(padClasses);
 				String name = e.getKey();
+				if(name.isEmpty()) {
+					name = "(unnamed)";
+				}
 				String actualUse = "";
 
 				try {
