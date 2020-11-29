@@ -37,13 +37,13 @@ public class WikiGenerator {
 
 				String color = getRowColor(padClasses);
 				String name = e.getKey();
-				if(name.isEmpty()) {
+				if (name.isEmpty()) {
 					name = "(unnamed)";
 				}
 				String actualUse = "";
 
 				try {
-					actualUse = OverpassLookup.overpassProtectedAreaLookup(name);
+					actualUse = OverpassLookup.overpassProtectedAreaLookup(name, state);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();

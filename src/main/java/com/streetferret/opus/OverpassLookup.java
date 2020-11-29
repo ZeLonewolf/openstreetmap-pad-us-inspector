@@ -11,11 +11,12 @@ import java.util.stream.Collectors;
 
 public class OverpassLookup {
 
-	static String overpassProtectedAreaLookup(String name) throws IOException {
+	static String overpassProtectedAreaLookup(String name, String state) throws IOException {
 
 		InputStream inputStream = OverpassLookup.class.getResourceAsStream("/lookup_by_name.overpass");
 		String opNameTemplate = StringUtil.readFromInputStream(inputStream);
 		opNameTemplate = opNameTemplate.replace("$NAME", name);
+		opNameTemplate = opNameTemplate.replace("$AREA", StateGeocode.LIST.getProperty(state).trim());
 
 		String nameLookup = RestUtil.queryOverpass(opNameTemplate);
 
