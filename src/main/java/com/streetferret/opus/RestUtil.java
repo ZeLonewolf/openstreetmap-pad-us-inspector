@@ -27,6 +27,8 @@ public class RestUtil {
 				return tryPost(url, query);
 			} catch (IOException e) {
 				if (isRetryable(e)) {
+					System.err.println(e.getMessage());
+					System.err.println(query);
 					System.err.println("Overpass: too many, retrying in " + failRetry + " to " + url);
 					tryToSleep(failRetry);
 					failRetry *= 1.5;

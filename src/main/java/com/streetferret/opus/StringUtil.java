@@ -16,4 +16,9 @@ public class StringUtil {
 		}
 		return resultStringBuilder.toString();
 	}
+
+	public static String cleanAreaName(String name) {
+		return name.replace("_", " ").replace("\"", "").replace("*", "").replaceAll("([A-Za-z])\\s*,\\s*([A-Za-z])",
+				"$1, $2");
+	}
 }

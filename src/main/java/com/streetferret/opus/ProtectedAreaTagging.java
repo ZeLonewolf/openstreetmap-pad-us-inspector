@@ -2,9 +2,10 @@ package com.streetferret.opus;
 
 public class ProtectedAreaTagging {
 	private String iucnClass = null;
-	private String iucnTag = null;
 	private String access = null;
 	private String ownership = null;
+	
+	private transient String name = "";
 
 	private double minLat = Double.MAX_VALUE;
 	private double minLon = Double.MAX_VALUE;
@@ -25,14 +26,6 @@ public class ProtectedAreaTagging {
 
 	public void setIucnClass(String iucnClass) {
 		this.iucnClass = iucnClass;
-	}
-
-	public String getIucnTag() {
-		return iucnTag;
-	}
-
-	public void setIucnTag(String iucnTag) {
-		this.iucnTag = iucnTag;
 	}
 
 	public String getAccess() {
@@ -73,5 +66,13 @@ public class ProtectedAreaTagging {
 
 	public void setMaxLon(double maxLon) {
 		this.maxLon = maxLon;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 }

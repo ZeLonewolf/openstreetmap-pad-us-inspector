@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
@@ -62,8 +61,9 @@ public class OPUSInspect {
 
 			}
 
-			WikiGenerator.generateWiki(state, protectedAreaMap);
 			stateProtectedAreaCount.put(state, protectedAreaMap.size());
+			OverpassLookup.populateTaggedUnlistedAreas(state, protectedAreaMap);
+			WikiGenerator.generateWiki(state, protectedAreaMap);
 		}
 
 		WikiGenerator.generateSummaryWiki(stateProtectedAreaCount);
@@ -99,18 +99,11 @@ public class OPUSInspect {
 				switch (startElement.getName().getLocalPart()) {
 				case "name":
 					nextEvent = reader.nextEvent();
-					name = nextEvent.asCharacters().toString().replace("_", " ").replace("*", "");
-					name = name.replaceAll("([A-Za-z])\\s*,\\s*([A-Za-z])", "$1, $2");
+					name = StringUtil.cleanAreaName(nextEvent.asCharacters().toString());
 					ProtectedAreaTagging tagging = new ProtectedAreaTagging();
 					populateFromDescription(reader, tagging);
 					populateCoordinates(reader, tagging);
-					if (protectedAreaMap.containsKey(name)) {
-						protectedAreaMap.get(name).add(tagging);
-					} else {
-						List<ProtectedAreaTagging> tagList = new ArrayList<>();
-						tagList.add(tagging);
-						protectedAreaMap.put(name, tagList);
-					}
+					ProtectedAreaMapLoader.storeTagging(protectedAreaMap, name, tagging);
 					return;
 				}
 			}

@@ -46,41 +46,53 @@ public class WikiGenerator {
 					e1.printStackTrace();
 				}
 
-				rowBuilder.append("|- bgcolor=\"");
-				rowBuilder.append(color);
-				rowBuilder.append("\"\n");
+				if ("Not Found".equals(padClassStr)) {
+					rowBuilder.append("{{PADUS_problem_row|");
+					rowBuilder.append(name);
+					rowBuilder.append("|");
+					rowBuilder.append(defaultTagging.getMinLon());
+					rowBuilder.append("|");
+					rowBuilder.append(defaultTagging.getMinLat());
+					rowBuilder.append("|");
+					rowBuilder.append(defaultTagging.getMaxLon());
+					rowBuilder.append("|");
+					rowBuilder.append(defaultTagging.getMaxLat());
+					rowBuilder.append("|");
+					rowBuilder.append(state);
+					rowBuilder.append("|");
+					rowBuilder.append(actualUse);
+					rowBuilder.append("}}\n");
+				} else {
+					rowBuilder.append("{{PADUS_row|");
+					rowBuilder.append(name);
+					rowBuilder.append("|");
+					rowBuilder.append(color);
 
-				// Name
-				rowBuilder.append("|{{BoxLink|");
-				rowBuilder.append(name);
-				rowBuilder.append("|");
-				rowBuilder.append(defaultTagging.getMinLon());
-				rowBuilder.append("|");
-				rowBuilder.append(defaultTagging.getMinLat());
-				rowBuilder.append("|");
-				rowBuilder.append(defaultTagging.getMaxLon());
-				rowBuilder.append("|");
-				rowBuilder.append(defaultTagging.getMaxLat());
-				rowBuilder.append("}}\n");
+					// Ownership type
+					rowBuilder.append("|");
+					rowBuilder.append(e.getValue().get(0).getOwnership());// TODO
 
-				// Ownership type
-				rowBuilder.append("|");
-				rowBuilder.append(e.getValue().get(0).getOwnership());// TODO
-				rowBuilder.append("\n");
+					// Access
+					rowBuilder.append("|");
+					rowBuilder.append(e.getValue().get(0).getAccess());// TODO
 
-				// Access
-				rowBuilder.append("|");
-				rowBuilder.append(e.getValue().get(0).getAccess());// TODO
-				rowBuilder.append("\n");
+					// IUCN Cat
+					rowBuilder.append("|");
+					rowBuilder.append(padClassStr);
 
-				// IUCN Cat
-				rowBuilder.append("|");
-				rowBuilder.append(padClassStr);
-				rowBuilder.append("\n");
+					rowBuilder.append("|");
+					rowBuilder.append(defaultTagging.getMinLon());
+					rowBuilder.append("|");
+					rowBuilder.append(defaultTagging.getMinLat());
+					rowBuilder.append("|");
+					rowBuilder.append(defaultTagging.getMaxLon());
+					rowBuilder.append("|");
+					rowBuilder.append(defaultTagging.getMaxLat());
 
-				rowBuilder.append("|");
-				rowBuilder.append(actualUse);
-				rowBuilder.append("\n");
+					rowBuilder.append("|");
+					rowBuilder.append(actualUse);
+					rowBuilder.append("}}\n");
+				}
 
 				System.out.println("Generated wiki for " + name);
 			});
