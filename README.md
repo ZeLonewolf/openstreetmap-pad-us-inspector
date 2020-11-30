@@ -12,7 +12,7 @@ This utility downloads and parses the USGS Protected Areas Database of the Unite
 * [Arizona](state/Arizona.html)
 * [Arkansas](state/Arkansas.html)
 * [California](state/California.html)
-* Colorado
+* [Colorado](state/Colorado.html)
 * Commonwealth of the Northern Mariana Islands
 * Delaware
 * Florida
