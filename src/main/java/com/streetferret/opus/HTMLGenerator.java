@@ -74,7 +74,7 @@ public class HTMLGenerator {
 				}
 
 				if ("Not Found".equals(padClassStr)) {
-					rowBuilder.append(T_MISSING_ROW.replace("$NAME", name).replace("$STATE", name)
+					rowBuilder.append(T_MISSING_ROW.replace("$NAME", name).replace("$STATE", state)
 							.replace("$OSM_OBJECTS", actualUse));
 
 				} else {
