@@ -27,16 +27,16 @@ This utility downloads and parses the USGS Protected Areas Database of the Unite
 * [Maryland](state/Maryland.html)
 * [Massachusetts](state/Massachusetts.html)
 * [Michigan](state/Michigan.html)
-* Minnesota
-* Mississippi
-* Missouri
-* Montana
-* Nebraska
-* Nevada
-* New Hampshire
-* New Jersey
-* New Mexico
-* New York
+* [Minnesota](state/Minnesota.html)
+* [Mississippi](state/Mississippi.html)
+* [Missouri](state/Missouri.html)
+* [Montana](state/Montana.html)
+* [Nebraska](state/Nebraska.html)
+* [Nevada](state/Nevada.html)
+* [New Hampshire](state/New%20Hampshire.html)
+* [New Jersey](state/New%20Jersey.html)
+* [New Mexico](state/New%20Mexico.html)
+* [New York](state/New%20York.html)
 * North Carolina
 * North Dakota
 * Ohio
