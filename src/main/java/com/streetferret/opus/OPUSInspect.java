@@ -63,10 +63,16 @@ public class OPUSInspect {
 
 			stateProtectedAreaCount.put(state, protectedAreaMap.size());
 
-			if (!Paths.get("output", state + ".wiki").toFile().exists()) {
+//			if (!Paths.get("output", state + ".wiki").toFile().exists()) {
+//				// Only do state page generations if we have to
+//				OverpassLookup.populateTaggedUnlistedAreas(state, protectedAreaMap);
+//				WikiGenerator.generateWiki(state, protectedAreaMap);
+//			}
+
+			if (!Paths.get("state", state + ".html").toFile().exists()) {
 				// Only do state page generations if we have to
 				OverpassLookup.populateTaggedUnlistedAreas(state, protectedAreaMap);
-				WikiGenerator.generateWiki(state, protectedAreaMap);
+				HTMLGenerator.generateHTML(state, protectedAreaMap);
 			}
 		}
 

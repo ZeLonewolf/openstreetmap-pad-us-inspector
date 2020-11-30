@@ -11,8 +11,7 @@ import java.util.stream.Collectors;
 
 public class OverpassLookup {
 
-	static String overpassProtectedAreaLookup(String name, String state) throws IOException {
-
+	static String[] lookupByName(String name, String state) throws IOException {
 		InputStream inputStream = OverpassLookup.class.getResourceAsStream("/lookup_by_name.overpass");
 		String opNameTemplate = StringUtil.readFromInputStream(inputStream);
 		opNameTemplate = opNameTemplate.replace("$NAME", name);
@@ -20,7 +19,12 @@ public class OverpassLookup {
 
 		String nameLookup = RestUtil.queryOverpass(opNameTemplate);
 
-		String[] rows = nameLookup.split("\n");
+		return nameLookup.split("\n");
+	}
+
+	static String overpassProtectedAreaLookup(String name, String state) throws IOException {
+
+		String[] rows = lookupByName(name, state);
 
 		if (rows.length == 0) {
 			return "";
@@ -107,4 +111,58 @@ public class OverpassLookup {
 
 	}
 
+	static String overpassProtectedAreaLookupHTML(String name, String state) throws IOException {
+
+		String[] rows = lookupByName(name, state);
+
+		if (rows.length == 0) {
+			return "";
+		}
+
+		StringBuilder objectList = new StringBuilder();
+		objectList.append("<ul>");
+
+		int count = 0;
+
+		for (String row : rows) {
+			String[] objectData = row.split("\\|");
+
+			if (objectData.length >= 4) {
+
+				++count;
+
+				if (count == 4 && rows.length > 4) {
+
+					int unlistedCount = rows.length - 3;
+
+					objectList.append("<li>plus <b>");
+					objectList.append(unlistedCount);
+					objectList.append("</b> more</li>");
+					objectList.append("</ul>");
+					return objectList.toString();
+
+				}
+
+				String item = "";
+
+				switch (objectData[0]) {
+				case "relation":
+					item = HTMLGenerator.T_REL_ITEM;
+					break;
+				case "way":
+					item = HTMLGenerator.T_WAY_ITEM;
+					break;
+				case "node":
+					item = HTMLGenerator.T_NODE_ITEM;
+					break;
+				}
+
+				item = item.replace("$OBJ_ID", objectData[1]).replace("$PROTECT_CLASS", objectData[3]);
+
+				objectList.append(item);
+			}
+		}
+
+		return objectList.toString();
+	}
 }
