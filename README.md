@@ -25,8 +25,8 @@ This utility downloads and parses the USGS Protected Areas Database of the Unite
 * [Kansas](state/Kansas.html)
 * [Maine](state/Maine.html)
 * [Maryland](state/Maryland.html)
-* Massachusetts
-* Michigan
+* [Massachusetts](state/Massachusetts.html)
+* [Michigan](state/Michigan.html)
 * Minnesota
 * Mississippi
 * Missouri
