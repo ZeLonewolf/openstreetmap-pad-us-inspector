@@ -13,18 +13,18 @@ This utility downloads and parses the USGS Protected Areas Database of the Unite
 * [Arkansas](state/Arkansas.html)
 * [California](state/California.html)
 * [Colorado](state/Colorado.html)
-* Commonwealth of the Northern Mariana Islands
-* Delaware
-* Florida
-* Georgia
-* Guam
-* Hawaii
-* Idaho
-* Illinois
-* Indiana
-* Kansas
-* Maine
-* Maryland
+* [Commonwealth of the Northern Mariana Islands](state/Commonwealth%20of%20the%20Northern%20Mariana%20Islands.html)
+* [Delaware](state/Delaware.html)
+* [Florida](state/Florida.html)
+* [Georgia](state/Georgia.html)
+* [Guam](state/Guam.html)
+* [Hawaii](state/Hawaii.html)
+* [Idaho](state/Idaho.html)
+* [Illinois](state/Illinois.html)
+* [Indiana](state/Indiana.html)
+* [Kansas](state/Kansas.html)
+* [Maine](state/Maine.html)
+* [Maryland](state/Maryland.html)
 * Massachusetts
 * Michigan
 * Minnesota
