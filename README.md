@@ -11,7 +11,7 @@ This utility downloads and parses the USGS Protected Areas Database of the Unite
 * [American Samoa](state/American%20Samoa.html)
 * [Arizona](state/Arizona.html)
 * [Arkansas](state/Arkansas.html)
-* [California(state/California.html)
+* [California](state/California.html)
 * Colorado
 * Commonwealth of the Northern Mariana Islands
 * Delaware
