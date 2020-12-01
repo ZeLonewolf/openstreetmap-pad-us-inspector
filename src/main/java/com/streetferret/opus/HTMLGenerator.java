@@ -11,6 +11,8 @@ import java.util.SortedMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import com.streetferret.opus.osmdb.StateProtectedAreaDatabase;
+
 public class HTMLGenerator {
 
 	private static SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy");
@@ -40,8 +42,8 @@ public class HTMLGenerator {
 				HTMLGenerator.class.getResourceAsStream("/html-template" + File.separator + fragment));
 	}
 
-	public static void generateHTML(String state, SortedMap<String, List<ProtectedAreaTagging>> mapList)
-			throws IOException {
+	public static void generateHTML(String state, SortedMap<String, List<ProtectedAreaTagging>> mapList,
+			StateProtectedAreaDatabase db) throws IOException {
 
 		try (PrintStream mdPrint = new PrintStream("state" + File.separator + state + ".html")) {
 
@@ -67,7 +69,7 @@ public class HTMLGenerator {
 				String actualUse = "";
 
 				try {
-					actualUse = OverpassLookup.overpassProtectedAreaLookupHTML(name, state);
+					actualUse = OverpassLookup.overpassProtectedAreaLookupHTML(name, db);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();

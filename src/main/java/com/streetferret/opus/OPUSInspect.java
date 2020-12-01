@@ -17,6 +17,8 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import com.streetferret.opus.osmdb.StateProtectedAreaDatabase;
+
 public class OPUSInspect {
 	private static SortedMap<String, List<ProtectedAreaTagging>> protectedAreaMap = new TreeMap<>();
 	private static SortedMap<String, Integer> stateProtectedAreaCount = new TreeMap<>();
@@ -63,20 +65,14 @@ public class OPUSInspect {
 
 			stateProtectedAreaCount.put(state, protectedAreaMap.size());
 
-//			if (!Paths.get("output", state + ".wiki").toFile().exists()) {
-//				// Only do state page generations if we have to
-//				OverpassLookup.populateTaggedUnlistedAreas(state, protectedAreaMap);
-//				WikiGenerator.generateWiki(state, protectedAreaMap);
-//			}
-
 			if (!Paths.get("state", state + ".html").toFile().exists()) {
 				// Only do state page generations if we have to
-				OverpassLookup.populateTaggedUnlistedAreas(state, protectedAreaMap);
-				HTMLGenerator.generateHTML(state, protectedAreaMap);
+
+				StateProtectedAreaDatabase db = OverpassLookup.downloadOSMProtectedAreas(state);
+				OverpassLookup.populateTaggedUnlistedAreas(state, protectedAreaMap, db);
+				HTMLGenerator.generateHTML(state, protectedAreaMap,db);
 			}
 		}
-
-		WikiGenerator.generateSummaryWiki(stateProtectedAreaCount);
 	}
 
 	private static void parseState(String state) throws Exception {
