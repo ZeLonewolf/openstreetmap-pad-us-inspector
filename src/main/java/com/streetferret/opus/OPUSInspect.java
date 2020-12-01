@@ -69,7 +69,7 @@ public class OPUSInspect {
 //				stateProtectedAreaCount.put(state, protectedAreaMap.size());
 
 				StateProtectedAreaDatabase db = OverpassLookup.downloadOSMProtectedAreas(state);
-				// OverpassLookup.populateTaggedUnlistedAreas(state, protectedAreaMap, db);
+				OverpassLookup.populateTaggedUnlistedAreas(state, protectedAreaMap, db);
 				HTMLGenerator.generateHTML(state, protectedAreaMap, db);
 			}
 		}
