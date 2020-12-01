@@ -37,23 +37,23 @@ This utility downloads and parses the USGS Protected Areas Database of the Unite
 * [New Jersey](state/New%20Jersey.html)
 * [New Mexico](state/New%20Mexico.html)
 * [New York](state/New%20York.html)
-* North Carolina
-* North Dakota
-* Ohio
-* Oklahoma
-* Oregon
-* Pennsylvania
-* Puerto Rico
-* Rhode Island
-* South Carolina
-* South Dakota
-* Tennessee
-* Texas
-* United States Virgin Islands
-* Utah
-* Vermont
-* Virginia
-* Washington
-* West Virginia
-* Wisconsin
-* Wyoming
+* [North Carolina](state/North%20Carolina.html)
+* [North Dakota](state/North%20Dakota.html)
+* [Ohio](state/Ohio.html)
+* [Oklahoma](state/Oklahoma.html)
+* [Oregon](state/Oregon.html)
+* [Pennsylvania](state/Pennsylvania.html)
+* [Puerto Rico](state/Puerto%20Rico.html)
+* [Rhode Island](state/Rhode%20Island.html)
+* [South Carolina](state/South%20Carolina.html)
+* [South Dakota](state/South%20Dakota.html)
+* [Tennessee](state/Tennessee.html)
+* [Texas](state/Texas.html)
+* [United States Virgin Islands](state/United%20States%20Virgin%20Islands.html)
+* [Utah](state/Utah.html)
+* [Vermont](state/Vermont.html)
+* [Virginia](state/Virginia.html)
+* [Washington](state/Washington.html)
+* [West Virginia](state/West%20Virginia.html)
+* [Wisconsin](state/Wisconsin.html)
+* [Wyoming](state/Wyoming.html)
