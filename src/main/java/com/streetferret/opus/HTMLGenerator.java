@@ -87,6 +87,8 @@ public class HTMLGenerator {
 							.replace("$LAT2", String.valueOf(defaultTagging.getMaxLat()))
 							.replace("$LAT2", String.valueOf(defaultTagging.getMaxLat()))
 							.replace("$OWNER_TYPE", defaultTagging.getOwnership())
+							.replace("$OWNER", defaultTagging.getOwner())
+							.replace("$OPERATOR", defaultTagging.getOperator())
 							.replace("$ACCESS", defaultTagging.getAccess())
 							.replace("$IUCN", String.valueOf(padClassStr)).replace("$OSM_OBJECTS", actualUse));
 				}

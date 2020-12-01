@@ -4,7 +4,9 @@ public class ProtectedAreaTagging {
 	private String iucnClass = null;
 	private String access = null;
 	private String ownership = null;
-	
+	private String owner = null;
+	private String operator = null;
+
 	private transient String name = "";
 
 	private double minLat = Double.MAX_VALUE;
@@ -74,5 +76,21 @@ public class ProtectedAreaTagging {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+
+	public String getOperator() {
+		return operator;
+	}
+
+	public void setOperator(String operator) {
+		this.operator = operator;
 	}
 }
