@@ -21,7 +21,7 @@ import com.streetferret.opus.osmdb.StateProtectedAreaDatabase;
 
 public class OPUSInspect {
 	private static SortedMap<String, List<ProtectedAreaTagging>> protectedAreaMap = new TreeMap<>();
-	private static SortedMap<String, Integer> stateProtectedAreaCount = new TreeMap<>();
+//	private static SortedMap<String, Integer> stateProtectedAreaCount = new TreeMap<>();
 
 	public static void main(String... args) throws Exception {
 
@@ -49,28 +49,28 @@ public class OPUSInspect {
 
 			System.out.println("Parsing " + state);
 
-			protectedAreaMap.clear();
-			parseState(state);
-
-			Iterator<List<ProtectedAreaTagging>> iterator = protectedAreaMap.values().iterator();
-			while (iterator.hasNext()) {
-
-				List<ProtectedAreaTagging> tags = iterator.next();
-				tags.removeIf(tag -> !IUCN.VALID_IUCN.contains(tag.getIucnClass()));
-				if (tags.isEmpty()) {
-					iterator.remove();
-				}
-
-			}
-
-			stateProtectedAreaCount.put(state, protectedAreaMap.size());
-
 			if (!Paths.get("state", state + ".html").toFile().exists()) {
 				// Only do state page generations if we have to
 
+				protectedAreaMap.clear();
+				parseState(state);
+
+				Iterator<List<ProtectedAreaTagging>> iterator = protectedAreaMap.values().iterator();
+				while (iterator.hasNext()) {
+
+					List<ProtectedAreaTagging> tags = iterator.next();
+					tags.removeIf(tag -> !IUCN.VALID_IUCN.contains(tag.getIucnClass()));
+					if (tags.isEmpty()) {
+						iterator.remove();
+					}
+
+				}
+
+//				stateProtectedAreaCount.put(state, protectedAreaMap.size());
+
 				StateProtectedAreaDatabase db = OverpassLookup.downloadOSMProtectedAreas(state);
-				OverpassLookup.populateTaggedUnlistedAreas(state, protectedAreaMap, db);
-				HTMLGenerator.generateHTML(state, protectedAreaMap,db);
+				// OverpassLookup.populateTaggedUnlistedAreas(state, protectedAreaMap, db);
+				HTMLGenerator.generateHTML(state, protectedAreaMap, db);
 			}
 		}
 	}
@@ -131,10 +131,12 @@ public class OPUSInspect {
 				switch (startElement.getName().getLocalPart()) {
 				case "description":
 					nextEvent = reader.nextEvent();
-					String rawDescription = nextEvent.asCharacters().toString();
+					String rawDescription = nextEvent.asCharacters().getData();
 					tagging.setIucnClass(parseField(rawDescription, "IUCN_Cat"));
 					tagging.setAccess(parseField(rawDescription, "d_Access"));
 					tagging.setOwnership(parseField(rawDescription, "d_Own_Type"));
+					tagging.setOwner(parseField(rawDescription, "Loc_Own"));
+					tagging.setOperator(parseField(rawDescription, "Loc_Mang"));
 					return;
 				}
 			}
