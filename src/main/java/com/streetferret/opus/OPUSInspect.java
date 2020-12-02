@@ -44,33 +44,36 @@ public class OPUSInspect {
 		File kmls = Paths.get("download", "kml").toFile();
 		String[] kmlPaths = kmls.list();
 
-//		for (String kml : kmlPaths) {
-//			String state = kml.replace(".kml", "");
-		String state = "Rhode Island";
+		for (String kml : kmlPaths) {
+			String state = kml.replace(".kml", "");
 
-		protectedAreaMap.clear();
+			protectedAreaMap.clear();
 
-		parseState(state);
+			parseState(state);
 
-		Iterator<ProtectedAreaConflation> iterator = protectedAreaMap.values().iterator();
+			Iterator<ProtectedAreaConflation> iterator = protectedAreaMap.values().iterator();
 
-		while (iterator.hasNext()) {
-			ProtectedAreaConflation conflation = iterator.next();
+			while (iterator.hasNext()) {
+				ProtectedAreaConflation conflation = iterator.next();
 
-			List<ProtectedAreaTagging> tags = conflation.getPadAreas();
-			tags.removeIf(tag -> !IUCN.VALID_IUCN.contains(tag.getIucnClass()));
-			if (tags.isEmpty()) {
-				iterator.remove();
+				String name = conflation.getPadAreas().get(0).getName();
+				String i = conflation.getPadAreas().get(0).getIucnClass();
+
+				List<ProtectedAreaTagging> tags = conflation.getPadAreas();
+				tags.removeIf(tag -> !IUCN.VALID_IUCN.contains(tag.getIucnClass()));
+				if (tags.isEmpty()) {
+					iterator.remove();
+					System.err.println("Removing for invalid: " + name + " [" + i + "]");
+				}
 			}
+
+			StateProtectedAreaDatabase db = OverpassLookup.downloadOSMProtectedAreas(state);
+
+			Conflator.conflateByName(protectedAreaMap, db);
+
+			OverpassLookup.populateTaggedUnlistedAreas(state, protectedAreaMap, db);
+			HTMLGenerator.generateHTML(state, protectedAreaMap, db);
 		}
-
-		StateProtectedAreaDatabase db = OverpassLookup.downloadOSMProtectedAreas(state);
-
-		Conflator.conflateByName(protectedAreaMap, db);
-
-		OverpassLookup.populateTaggedUnlistedAreas(state, protectedAreaMap, db);
-		HTMLGenerator.generateHTML(state, protectedAreaMap, db);
-//		}
 	}
 
 	private static void parseState(String state) throws Exception {
@@ -104,6 +107,11 @@ public class OPUSInspect {
 				case "name":
 					nextEvent = reader.nextEvent();
 					name = StringUtil.cleanAreaName(nextEvent.asCharacters().toString());
+
+					if (name.equals("Davis Memorial Wildlife Refuge")) {
+						System.err.println(name + " -> " + "got tag");
+					}
+
 					ProtectedAreaTagging tagging = new ProtectedAreaTagging();
 					tagging.setName(name);
 					populateFromDescription(reader, tagging);
@@ -130,7 +138,15 @@ public class OPUSInspect {
 				switch (startElement.getName().getLocalPart()) {
 				case "description":
 					nextEvent = reader.nextEvent();
-					String rawDescription = nextEvent.asCharacters().getData();
+
+					StringBuilder rawText = new StringBuilder();
+					while (nextEvent.isCharacters()) {
+						rawText.append(nextEvent.asCharacters().getData());
+						nextEvent = reader.nextEvent();
+					}
+
+					String rawDescription = rawText.toString();
+
 					tagging.setIucnClass(parseField(rawDescription, "IUCN_Cat"));
 					tagging.setAccess(parseField(rawDescription, "d_Access"));
 					tagging.setOwnership(parseField(rawDescription, "d_Own_Type"));
