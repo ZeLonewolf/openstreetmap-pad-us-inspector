@@ -74,7 +74,7 @@ public class HTMLGenerator {
 				String actualUse = "";
 
 				try {
-					actualUse = OverpassLookup.overpassProtectedAreaLookupHTML(c.getOsmAreas());
+					actualUse = OverpassLookup.overpassProtectedAreaLookupHTML(c.getDistinctOsmAreas());
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -97,8 +97,6 @@ public class HTMLGenerator {
 							.replace("$ACCESS", defaultTagging.getAccess())
 							.replace("$IUCN", String.valueOf(padClassStr)).replace("$OSM_OBJECTS", actualUse));
 				}
-
-				System.out.println("Generated html for " + name);
 			});
 
 			String page = T_STATE_PAGE.replace("$STATE", state).replace("$DATE", sdf.format(new Date()))
@@ -106,6 +104,7 @@ public class HTMLGenerator {
 
 			mdPrint.println(page);
 		}
+		System.out.println("Generated html for " + state);
 	}
 
 	private static String getRowColor(Set<String> padClasses) {

@@ -12,6 +12,11 @@ public class Conflator {
 
 	public static void conflateByName(SortedMap<String, ProtectedAreaConflation> protectedAreaMap,
 			StateProtectedAreaDatabase db) {
+		conflateByName(protectedAreaMap, db, "protect_class");
+	}
+
+	public static void conflateByName(SortedMap<String, ProtectedAreaConflation> protectedAreaMap,
+			StateProtectedAreaDatabase db, String lookupType) {
 
 		Iterator<OSMProtectedAreaRecord> it = db.getRecords().iterator();
 
@@ -24,11 +29,12 @@ public class Conflator {
 
 			if (protectedAreaMap.containsKey(name)) {
 				osmRec.setConflationNote("exact name");
+				osmRec.setConflationType(lookupType);
 				protectedAreaMap.get(name).getOsmAreas().add(osmRec);
 				conflatedRecordsToRemove.add(name);
 			}
 		}
-		
+
 		db.removeRecordsNamed(conflatedRecordsToRemove);
 	}
 

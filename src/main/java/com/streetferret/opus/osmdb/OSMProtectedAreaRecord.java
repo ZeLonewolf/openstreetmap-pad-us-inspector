@@ -11,6 +11,7 @@ public class OSMProtectedAreaRecord {
 	private String iucnLevel = null;
 	private OSMBounds bounds;
 	private String conflationNote = "";
+	private String conflationType = "";
 
 	public String getType() {
 		return type;
@@ -69,5 +70,13 @@ public class OSMProtectedAreaRecord {
 
 	public void setConflationNote(String conflationNote) {
 		this.conflationNote = conflationNote;
+	}
+
+	public String getConflationType() {
+		return conflationType;
+	}
+
+	public void setConflationType(String conflationType) {
+		this.conflationType = conflationType;
 	}
 }

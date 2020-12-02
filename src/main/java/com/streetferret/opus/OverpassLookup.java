@@ -17,7 +17,23 @@ import com.streetferret.opus.osmdb.StateProtectedAreaDatabase;
 public class OverpassLookup {
 
 	static StateProtectedAreaDatabase downloadOSMProtectedAreas(String state) throws IOException {
-		InputStream inputStream = OverpassLookup.class.getResourceAsStream("/state_protected_area_lookup.overpass");
+		return downloadOSM(state, "state_protected_area_lookup.overpass");
+	}
+
+	static StateProtectedAreaDatabase downloadOSMLeisurePark(String state) throws IOException {
+		return downloadOSM(state, "state_park_lookup.overpass");
+	}
+
+	public static StateProtectedAreaDatabase downloadOSMLeisureNature(String state) throws IOException {
+		return downloadOSM(state, "state_nature_reserve_lookup.overpass");
+	}
+
+	public static StateProtectedAreaDatabase downloadOSMRecGround(String state) throws IOException {
+		return downloadOSM(state, "state_recreation_ground_lookup.overpass");
+	}
+
+	static StateProtectedAreaDatabase downloadOSM(String state, String query) throws IOException {
+		InputStream inputStream = OverpassLookup.class.getResourceAsStream("/" + query);
 		String opNameTemplate = StringUtil.readFromInputStream(inputStream);
 		opNameTemplate = opNameTemplate.replace("$AREA", StateGeocode.LIST.getProperty(state).trim());
 
@@ -105,10 +121,25 @@ public class OverpassLookup {
 				break;
 			}
 
-			String protectClass = record.getProtectClass() == null ? "_" : record.getProtectClass();
-
-			item = item.replace("$OBJ_ID", String.valueOf(record.getId())).replace("$PROTECT_CLASS", protectClass)
-					.replace("$CONFLATE_NOTE", record.getConflationNote());
+			switch (record.getConflationType()) {
+			case "leisure_park":
+				item = item.replace("$OBJ_ID", String.valueOf(record.getId())).replace("$KEY", "leisure")
+						.replace("$VALUE", "park").replace("$CONFLATE_NOTE", record.getConflationNote());
+				break;
+			case "nature_reserve":
+				item = item.replace("$OBJ_ID", String.valueOf(record.getId())).replace("$KEY", "leisure")
+						.replace("$VALUE", "nature_reserve").replace("$CONFLATE_NOTE", record.getConflationNote());
+				break;
+			case "recreation_ground":
+				item = item.replace("$OBJ_ID", String.valueOf(record.getId())).replace("$KEY", "leisure")
+						.replace("$VALUE", "recreation_ground").replace("$CONFLATE_NOTE", record.getConflationNote());
+				break;
+			default:
+				String protectClass = record.getProtectClass() == null ? "_" : record.getProtectClass();
+				item = item.replace("$OBJ_ID", String.valueOf(record.getId())).replace("$KEY", "protect_class")
+						.replace("$VALUE", protectClass).replace("$CONFLATE_NOTE", record.getConflationNote());
+				break;
+			}
 
 			objectList.append(item);
 		}
