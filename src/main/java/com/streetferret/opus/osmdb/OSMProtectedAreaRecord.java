@@ -10,6 +10,7 @@ public class OSMProtectedAreaRecord {
 	private String protectClass = null;
 	private String iucnLevel = null;
 	private OSMBounds bounds;
+	private String conflationNote = "";
 
 	public String getType() {
 		return type;
@@ -57,5 +58,16 @@ public class OSMProtectedAreaRecord {
 
 	public void setBounds(OSMBounds bounds) {
 		this.bounds = bounds;
+	}
+
+	public String getConflationNote() {
+		if (conflationNote.isEmpty()) {
+			return "";
+		}
+		return "[" + conflationNote + "]";
+	}
+
+	public void setConflationNote(String conflationNote) {
+		this.conflationNote = conflationNote;
 	}
 }

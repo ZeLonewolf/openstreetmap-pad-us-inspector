@@ -23,6 +23,7 @@ public class Conflator {
 			String name = osmRec.getName();
 
 			if (protectedAreaMap.containsKey(name)) {
+				osmRec.setConflationNote("exact name");
 				protectedAreaMap.get(name).getOsmAreas().add(osmRec);
 				conflatedRecordsToRemove.add(name);
 			}

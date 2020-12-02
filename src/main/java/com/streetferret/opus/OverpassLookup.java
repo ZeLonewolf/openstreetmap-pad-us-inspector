@@ -107,7 +107,8 @@ public class OverpassLookup {
 
 			String protectClass = record.getProtectClass() == null ? "_" : record.getProtectClass();
 
-			item = item.replace("$OBJ_ID", String.valueOf(record.getId())).replace("$PROTECT_CLASS", protectClass);
+			item = item.replace("$OBJ_ID", String.valueOf(record.getId())).replace("$PROTECT_CLASS", protectClass)
+					.replace("$CONFLATE_NOTE", record.getConflationNote());
 
 			objectList.append(item);
 		}
