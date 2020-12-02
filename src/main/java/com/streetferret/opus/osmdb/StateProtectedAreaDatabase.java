@@ -30,7 +30,7 @@ public class StateProtectedAreaDatabase {
 		});
 	}
 
-	public List<OSMProtectedAreaRecord> lookupByName(String name) {
-		return nameIndex.get(name);
+	public TreeMap<String, List<OSMProtectedAreaRecord>> getNameIndex() {
+		return nameIndex;
 	}
 }

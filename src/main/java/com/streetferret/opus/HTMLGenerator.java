@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeSet;
@@ -42,22 +41,26 @@ public class HTMLGenerator {
 				HTMLGenerator.class.getResourceAsStream("/html-template" + File.separator + fragment));
 	}
 
-	public static void generateHTML(String state, SortedMap<String, List<ProtectedAreaTagging>> mapList,
+	public static void generateHTML(String state, SortedMap<String, ProtectedAreaConflation> protectedAreaMap,
 			StateProtectedAreaDatabase db) throws IOException {
+
+		new File("state").mkdirs();
 
 		try (PrintStream mdPrint = new PrintStream("state" + File.separator + state + ".html")) {
 
 			StringBuilder rowBuilder = new StringBuilder();
 
-			mapList.entrySet().forEach(e -> {
+			protectedAreaMap.entrySet().forEach(e -> {
+
+				ProtectedAreaConflation c = e.getValue();
 
 				Set<String> padClasses = new TreeSet<>();
 
-				for (ProtectedAreaTagging tagging : e.getValue()) {
+				for (ProtectedAreaTagging tagging : c.getPadAreas()) {
 					padClasses.add(tagging.getIucnClass());
 				}
 
-				ProtectedAreaTagging defaultTagging = e.getValue().get(0);
+				ProtectedAreaTagging defaultTagging = c.getPadAreas().get(0);
 
 				String padClassStr = padClasses.stream().collect(Collectors.joining(", "));
 
@@ -69,7 +72,7 @@ public class HTMLGenerator {
 				String actualUse = "";
 
 				try {
-					actualUse = OverpassLookup.overpassProtectedAreaLookupHTML(name, db);
+					actualUse = OverpassLookup.overpassProtectedAreaLookupHTML(c.getOsmAreas());
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();

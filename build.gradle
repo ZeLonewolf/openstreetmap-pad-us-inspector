@@ -14,8 +14,16 @@ targetCompatibility = 1.8
 
 applicationDefaultJvmArgs = ["-Xmx3G"]
 
+ext {
+    jacksonVersion = '2.2.0'
+}
+
 dependencies {
-  compile 'org.jfgdb:jfgdb:0.1.4'
+  	//compile 'org.jfgdb:jfgdb:0.1.4'
+
+	compile "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
+	compile "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
+	compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
 }
 
 jar {
