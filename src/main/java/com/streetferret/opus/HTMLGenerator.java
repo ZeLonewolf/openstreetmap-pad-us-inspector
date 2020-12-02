@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeSet;
@@ -64,7 +66,7 @@ public class HTMLGenerator {
 
 				String padClassStr = padClasses.stream().collect(Collectors.joining(", "));
 
-				String color = getRowColor(padClasses);
+				String colorStyle = getRowColor(padClasses);
 				String name = e.getKey();
 				if (name.isEmpty()) {
 					name = "(unnamed)";
@@ -83,7 +85,7 @@ public class HTMLGenerator {
 							.replace("$OSM_OBJECTS", actualUse));
 
 				} else {
-					rowBuilder.append(T_PAD_ROW.replace("$NAME", name).replace("$COLOR", color)
+					rowBuilder.append(T_PAD_ROW.replace("$NAME", name).replace("$ROW_STYLE", colorStyle)
 							.replace("$LON1", String.valueOf(defaultTagging.getMinLon()))
 							.replace("$LAT1", String.valueOf(defaultTagging.getMinLat()))
 							.replace("$LON2", String.valueOf(defaultTagging.getMaxLon()))
@@ -108,25 +110,48 @@ public class HTMLGenerator {
 
 	private static String getRowColor(Set<String> padClasses) {
 
+		int stripeSize = 25;
+
 		if (padClasses.size() > 1) {
-			return "#fff";
+
+			int px = 0;
+			StringBuilder grad = new StringBuilder("background: repeating-linear-gradient(135deg,");
+
+			List<String> cssFrags = new ArrayList<>();
+
+			for (String aClass : padClasses) {
+				String color = HTMLGenerator.iucnToColor(aClass);
+				color = color + " " + px + "px," + color + " " + (px + stripeSize) + "px";
+				cssFrags.add(color);
+				px += stripeSize;
+			}
+
+			grad.append(cssFrags.stream().collect(Collectors.joining(",")));
+			grad.append(");");
+
+			return grad.toString();
+
 		}
 
-		switch (padClasses.iterator().next()) {
+		return "background-color: " + iucnToColor(padClasses.iterator().next());
+	}
+
+	private static String iucnToColor(String iucn) {
+		switch (iucn) {
 		case "Ia":
-			return "#fcc";
+			return "#fdd";
 		case "Ib":
-			return "#cfc";
+			return "#dfd";
 		case "II":
-			return "#ccf";
+			return "#ddf";
 		case "III":
-			return "#cff";
+			return "#dff";
 		case "IV":
-			return "#fcf";
+			return "#fdf";
 		case "V":
-			return "#ffc";
+			return "#ffd";
 		case "VI":
-			return "#ccc";
+			return "#ddd";
 		}
 		return "#fff";
 	}

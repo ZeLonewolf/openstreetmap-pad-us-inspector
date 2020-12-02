@@ -56,14 +56,10 @@ public class OPUSInspect {
 			while (iterator.hasNext()) {
 				ProtectedAreaConflation conflation = iterator.next();
 
-				String name = conflation.getPadAreas().get(0).getName();
-				String i = conflation.getPadAreas().get(0).getIucnClass();
-
 				List<ProtectedAreaTagging> tags = conflation.getPadAreas();
 				tags.removeIf(tag -> !IUCN.VALID_IUCN.contains(tag.getIucnClass()));
 				if (tags.isEmpty()) {
 					iterator.remove();
-					System.err.println("Removing for invalid: " + name + " [" + i + "]");
 				}
 			}
 
@@ -107,10 +103,6 @@ public class OPUSInspect {
 				case "name":
 					nextEvent = reader.nextEvent();
 					name = StringUtil.cleanAreaName(nextEvent.asCharacters().toString());
-
-					if (name.equals("Davis Memorial Wildlife Refuge")) {
-						System.err.println(name + " -> " + "got tag");
-					}
 
 					ProtectedAreaTagging tagging = new ProtectedAreaTagging();
 					tagging.setName(name);
