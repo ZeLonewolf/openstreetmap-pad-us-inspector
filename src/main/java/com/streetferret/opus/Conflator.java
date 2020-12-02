@@ -25,6 +25,7 @@ public class Conflator {
 			if (protectedAreaMap.containsKey(name)) {
 				protectedAreaMap.get(name).getOsmAreas().add(osmRec);
 				conflatedRecordsToRemove.add(name);
+				System.err.println("Conflated: " + name);
 			}
 		}
 		

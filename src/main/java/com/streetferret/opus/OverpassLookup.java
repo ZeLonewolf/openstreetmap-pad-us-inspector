@@ -53,11 +53,16 @@ public class OverpassLookup {
 
 		osmData.getNameIndex().entrySet().forEach(e -> {
 			ProtectedAreaConflation c = new ProtectedAreaConflation();
-			c.setOsmAreas(e.getValue());
 			ProtectedAreaTagging t = new ProtectedAreaTagging();
+			String name = e.getKey();
+
+			t.setName(name);
 			t.setIucnClass("Not Found");
+
+			c.setOsmAreas(e.getValue());
 			c.setPadAreas(Arrays.asList(t));
-			protectedAreaMap.put(e.getKey(), c);
+
+			protectedAreaMap.put(name, c);
 		});
 	}
 

@@ -6,8 +6,7 @@ public class ProtectedAreaTagging {
 	private String ownership = null;
 	private String owner = null;
 	private String operator = null;
-
-	private transient String name = "";
+	private String name = "";
 
 	private double minLat = Double.MAX_VALUE;
 	private double minLon = Double.MAX_VALUE;
