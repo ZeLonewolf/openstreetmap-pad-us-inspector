@@ -1,11 +1,14 @@
 package com.streetferret.opus.osmdb;
 
+import com.streetferret.opus.model.OSMBounds;
+
 public class OSMProtectedAreaRecord {
 	private String type;
 	private long id;
 	private String name = "(untagged)";
 	private String protectClass = null;
 	private String iucnLevel = null;
+	private OSMBounds bounds;
 
 	public String getType() {
 		return type;
@@ -45,5 +48,13 @@ public class OSMProtectedAreaRecord {
 
 	public void setIucnLevel(String iucnLevel) {
 		this.iucnLevel = iucnLevel;
+	}
+
+	public OSMBounds getBounds() {
+		return bounds;
+	}
+
+	public void setBounds(OSMBounds bounds) {
+		this.bounds = bounds;
 	}
 }

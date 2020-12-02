@@ -45,6 +45,8 @@ public class HTMLGenerator {
 	public static void generateHTML(String state, SortedMap<String, List<ProtectedAreaTagging>> mapList,
 			StateProtectedAreaDatabase db) throws IOException {
 
+		new File("state").mkdirs();
+
 		try (PrintStream mdPrint = new PrintStream("state" + File.separator + state + ".html")) {
 
 			StringBuilder rowBuilder = new StringBuilder();

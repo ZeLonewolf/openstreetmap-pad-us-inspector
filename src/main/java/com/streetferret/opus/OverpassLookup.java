@@ -2,14 +2,16 @@ package com.streetferret.opus;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeSet;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.streetferret.opus.model.OSMElement;
+import com.streetferret.opus.model.OSMResponse;
 import com.streetferret.opus.osmdb.OSMProtectedAreaRecord;
 import com.streetferret.opus.osmdb.StateProtectedAreaDatabase;
 
@@ -22,36 +24,28 @@ public class OverpassLookup {
 
 		String areasLookup = RestUtil.queryOverpass(opNameTemplate);
 
-		String[] areas = areasLookup.split("\n");
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
+		OSMResponse areas = mapper.readValue(areasLookup, OSMResponse.class);
 		StateProtectedAreaDatabase statePad = new StateProtectedAreaDatabase();
 
-		for (String area : areas) {
-			String[] data = area.split("\\|");
+		for (OSMElement area : areas.getElements()) {
 			OSMProtectedAreaRecord r = new OSMProtectedAreaRecord();
 
-			populateString(data, 0, r::setType);
-			populateLong(data, 1, r::setId);
-			populateString(data, 2, r::setName);
-			populateString(data, 3, r::setProtectClass);
-			populateString(data, 4, r::setIucnLevel);
+			r.setId(area.getId());
+			r.setType(area.getType().toString());
+
+			Map<String, String> tags = area.getTags();
+			r.setIucnLevel(tags.get("iucn_level"));
+			r.setProtectClass(tags.get("protect_class"));
+			r.setBounds(area.getBounds());
 
 			statePad.getRecords().add(r);
 		}
+
 		statePad.index();
 		return statePad;
-	}
-
-	private static void populateString(String[] data, int index, Consumer<String> c) {
-		if (data.length > index) {
-			c.accept(data[index]);
-		}
-	}
-
-	private static void populateLong(String[] data, int index, Consumer<Long> c) {
-		if (data.length > index) {
-			c.accept(Long.valueOf(data[index]));
-		}
 	}
 
 	static void populateTaggedUnlistedAreas(String state,
