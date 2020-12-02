@@ -44,34 +44,33 @@ public class OPUSInspect {
 		File kmls = Paths.get("download", "kml").toFile();
 		String[] kmlPaths = kmls.list();
 
-		for (String kml : kmlPaths) {
-			String state = kml.replace(".kml", "");
+//		for (String kml : kmlPaths) {
+//			String state = kml.replace(".kml", "");
+		String state = "Rhode Island";
 
-			System.out.println("Parsing " + state);
+		protectedAreaMap.clear();
 
-			protectedAreaMap.clear();
+		parseState(state);
 
-			parseState(state);
+		Iterator<ProtectedAreaConflation> iterator = protectedAreaMap.values().iterator();
 
-			Iterator<ProtectedAreaConflation> iterator = protectedAreaMap.values().iterator();
+		while (iterator.hasNext()) {
+			ProtectedAreaConflation conflation = iterator.next();
 
-			while (iterator.hasNext()) {
-				ProtectedAreaConflation conflation = iterator.next();
-
-				List<ProtectedAreaTagging> tags = conflation.getPadAreas();
-				tags.removeIf(tag -> !IUCN.VALID_IUCN.contains(tag.getIucnClass()));
-				if (tags.isEmpty()) {
-					iterator.remove();
-				}
+			List<ProtectedAreaTagging> tags = conflation.getPadAreas();
+			tags.removeIf(tag -> !IUCN.VALID_IUCN.contains(tag.getIucnClass()));
+			if (tags.isEmpty()) {
+				iterator.remove();
 			}
-
-			StateProtectedAreaDatabase db = OverpassLookup.downloadOSMProtectedAreas(state);
-
-			Conflator.conflateByName(protectedAreaMap, db);
-
-			OverpassLookup.populateTaggedUnlistedAreas(state, protectedAreaMap, db);
-			HTMLGenerator.generateHTML(state, protectedAreaMap, db);
 		}
+
+		StateProtectedAreaDatabase db = OverpassLookup.downloadOSMProtectedAreas(state);
+
+		Conflator.conflateByName(protectedAreaMap, db);
+
+		OverpassLookup.populateTaggedUnlistedAreas(state, protectedAreaMap, db);
+		HTMLGenerator.generateHTML(state, protectedAreaMap, db);
+//		}
 	}
 
 	private static void parseState(String state) throws Exception {
@@ -106,6 +105,7 @@ public class OPUSInspect {
 					nextEvent = reader.nextEvent();
 					name = StringUtil.cleanAreaName(nextEvent.asCharacters().toString());
 					ProtectedAreaTagging tagging = new ProtectedAreaTagging();
+					tagging.setName(name);
 					populateFromDescription(reader, tagging);
 					populateCoordinates(reader, tagging);
 					ProtectedAreaMapLoader.storeTagging(protectedAreaMap, name, tagging);
