@@ -2,11 +2,10 @@ package com.streetferret.opus;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedMap;
-import java.util.TreeSet;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,30 +48,22 @@ public class OverpassLookup {
 		return statePad;
 	}
 
-	static void populateTaggedUnlistedAreas(String state,
-			SortedMap<String, List<ProtectedAreaTagging>> protectedAreaMap, StateProtectedAreaDatabase osmData)
-			throws IOException {
+	static void populateTaggedUnlistedAreas(String state, SortedMap<String, ProtectedAreaConflation> protectedAreaMap,
+			StateProtectedAreaDatabase osmData) throws IOException {
 
-		Set<String> unlisted = new TreeSet<>();
-
-		osmData.getRecords().forEach(record -> {
-			if (!protectedAreaMap.containsKey(record.getName())) {
-				unlisted.add(StringUtil.cleanAreaName(record.getName()));
-			}
-		});
-
-		for (String name : unlisted) {
+		osmData.getNameIndex().entrySet().forEach(e -> {
+			ProtectedAreaConflation c = new ProtectedAreaConflation();
+			c.setOsmAreas(e.getValue());
 			ProtectedAreaTagging t = new ProtectedAreaTagging();
 			t.setIucnClass("Not Found");
-			ProtectedAreaMapLoader.storeTagging(protectedAreaMap, name, t);
-		}
+			c.setPadAreas(Arrays.asList(t));
+			protectedAreaMap.put(e.getKey(), c);
+		});
 	}
 
-	static String overpassProtectedAreaLookupHTML(String name, StateProtectedAreaDatabase db) throws IOException {
+	public static String overpassProtectedAreaLookupHTML(List<OSMProtectedAreaRecord> records) throws IOException {
 
-		List<OSMProtectedAreaRecord> records = db.lookupByName(name);
-
-		if (records == null) {
+		if (records.isEmpty()) {
 			return "";
 		}
 

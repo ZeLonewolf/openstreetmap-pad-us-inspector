@@ -20,8 +20,8 @@ import javax.xml.stream.events.XMLEvent;
 import com.streetferret.opus.osmdb.StateProtectedAreaDatabase;
 
 public class OPUSInspect {
-	private static SortedMap<String, List<ProtectedAreaTagging>> protectedAreaMap = new TreeMap<>();
-//	private static SortedMap<String, Integer> stateProtectedAreaCount = new TreeMap<>();
+
+	private static final SortedMap<String, ProtectedAreaConflation> protectedAreaMap = new TreeMap<>();
 
 	public static void main(String... args) throws Exception {
 
@@ -53,22 +53,25 @@ public class OPUSInspect {
 				// Only do state page generations if we have to
 
 				protectedAreaMap.clear();
+
 				parseState(state);
 
-				Iterator<List<ProtectedAreaTagging>> iterator = protectedAreaMap.values().iterator();
-				while (iterator.hasNext()) {
+				Iterator<ProtectedAreaConflation> iterator = protectedAreaMap.values().iterator();
 
-					List<ProtectedAreaTagging> tags = iterator.next();
+				while (iterator.hasNext()) {
+					ProtectedAreaConflation conflation = iterator.next();
+
+					List<ProtectedAreaTagging> tags = conflation.getPadAreas();
 					tags.removeIf(tag -> !IUCN.VALID_IUCN.contains(tag.getIucnClass()));
 					if (tags.isEmpty()) {
 						iterator.remove();
 					}
-
 				}
 
-//				stateProtectedAreaCount.put(state, protectedAreaMap.size());
-
 				StateProtectedAreaDatabase db = OverpassLookup.downloadOSMProtectedAreas(state);
+
+				Conflator.conflateByName(protectedAreaMap, db);
+
 				OverpassLookup.populateTaggedUnlistedAreas(state, protectedAreaMap, db);
 				HTMLGenerator.generateHTML(state, protectedAreaMap, db);
 			}
