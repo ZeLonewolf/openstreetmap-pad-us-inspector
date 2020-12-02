@@ -95,21 +95,15 @@
 			<caption>IUCN Categorized Protected Areas in $STATE</caption>
 			<thead>
 				<tr>
-					<th>Name</th>
-					<th>Ownership Type<sup id="cite_ref-1" class="reference"><a
-							href="#cite_note-1">&#91;1&#93;</a></sup>
-					</th>
-<!-- 
-					<th>Access<sup id="cite_ref-2" class="reference"><a
-							href="#cite_note-2">&#91;2&#93;</a></sup>
-					</th>
-					 -->
-					<th>Owner</th>
-					<th>Operator</th>
+					<th>Area</th>
 					<th>IUCN Category<sup id="cite_ref-3" class="reference"><a
 							href="#cite_note-3">&#91;3&#93;</a></sup>
 					</th>
-					<th>OSM Objects with this Name</th>
+					<th>Ownership Type<sup id="cite_ref-1" class="reference"><a
+							href="#cite_note-1">&#91;1&#93;</a></sup>
+					</th>
+					<th>Owner</th>
+					<th>Operator</th>
 				</tr>
 			</thead>
 			<tbody>$TABLE
@@ -117,7 +111,7 @@
 		</table>
 
 		<br />
-		
+
 		<h3>References</h3>
 
 		<div class="mw-references-wrap">
@@ -233,9 +227,14 @@
 	</div>
 
 	<script type="text/javascript">
-		$(document).ready(function() {
-			$('#areas').DataTable();
-		});
+		$(document).ready(
+				function() {
+					$('#areas').DataTable(
+							{
+								"lengthMenu" : [ [ 10, 25, 50, 100, 1000 - 1 ],
+										[ 10, 25, 50, 100, 1000, "All" ] ]
+							});
+				});
 	</script>
 </body>
 </html>

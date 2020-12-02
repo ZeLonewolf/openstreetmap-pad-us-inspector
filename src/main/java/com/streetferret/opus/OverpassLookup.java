@@ -37,6 +37,7 @@ public class OverpassLookup {
 			r.setType(area.getType().toString());
 
 			Map<String, String> tags = area.getTags();
+			r.setName(tags.get("name"));
 			r.setIucnLevel(tags.get("iucn_level"));
 			r.setProtectClass(tags.get("protect_class"));
 			r.setBounds(area.getBounds());

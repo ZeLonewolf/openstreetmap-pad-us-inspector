@@ -1,5 +1,6 @@
 package com.streetferret.opus.osmdb;
 
+import com.streetferret.opus.StringUtil;
 import com.streetferret.opus.model.OSMBounds;
 
 public class OSMProtectedAreaRecord {
@@ -27,7 +28,7 @@ public class OSMProtectedAreaRecord {
 	}
 
 	public String getName() {
-		return name;
+		return name == null ? "(unnamed)" : StringUtil.cleanAreaName(name);
 	}
 
 	public void setName(String name) {
