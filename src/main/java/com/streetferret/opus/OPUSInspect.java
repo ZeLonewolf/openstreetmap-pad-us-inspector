@@ -49,32 +49,28 @@ public class OPUSInspect {
 
 			System.out.println("Parsing " + state);
 
-			if (!Paths.get("state", state + ".html").toFile().exists()) {
-				// Only do state page generations if we have to
+			protectedAreaMap.clear();
 
-				protectedAreaMap.clear();
+			parseState(state);
 
-				parseState(state);
+			Iterator<ProtectedAreaConflation> iterator = protectedAreaMap.values().iterator();
 
-				Iterator<ProtectedAreaConflation> iterator = protectedAreaMap.values().iterator();
+			while (iterator.hasNext()) {
+				ProtectedAreaConflation conflation = iterator.next();
 
-				while (iterator.hasNext()) {
-					ProtectedAreaConflation conflation = iterator.next();
-
-					List<ProtectedAreaTagging> tags = conflation.getPadAreas();
-					tags.removeIf(tag -> !IUCN.VALID_IUCN.contains(tag.getIucnClass()));
-					if (tags.isEmpty()) {
-						iterator.remove();
-					}
+				List<ProtectedAreaTagging> tags = conflation.getPadAreas();
+				tags.removeIf(tag -> !IUCN.VALID_IUCN.contains(tag.getIucnClass()));
+				if (tags.isEmpty()) {
+					iterator.remove();
 				}
-
-				StateProtectedAreaDatabase db = OverpassLookup.downloadOSMProtectedAreas(state);
-
-				Conflator.conflateByName(protectedAreaMap, db);
-
-				OverpassLookup.populateTaggedUnlistedAreas(state, protectedAreaMap, db);
-				HTMLGenerator.generateHTML(state, protectedAreaMap, db);
 			}
+
+			StateProtectedAreaDatabase db = OverpassLookup.downloadOSMProtectedAreas(state);
+
+			Conflator.conflateByName(protectedAreaMap, db);
+
+			OverpassLookup.populateTaggedUnlistedAreas(state, protectedAreaMap, db);
+			HTMLGenerator.generateHTML(state, protectedAreaMap, db);
 		}
 	}
 
