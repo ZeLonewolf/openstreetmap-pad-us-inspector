@@ -1,0 +1,6 @@
+[timeout:180][out:json];
+area($AREA)->.searchArea;
+(
+  nwr["leisure"="nature_reserve"]["name"](area.searchArea);
+);
+out bb tags;
