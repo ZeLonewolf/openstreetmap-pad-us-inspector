@@ -57,9 +57,10 @@ public class OPUSInspect {
 				ProtectedAreaConflation conflation = iterator.next();
 
 				List<ProtectedAreaTagging> tags = conflation.getPadAreas();
-				tags.removeIf(tag -> !IUCN.VALID_IUCN.contains(tag.getIucnClass()));
-				if (tags.isEmpty()) {
+				if (!IUCN.hasValidAreas(tags)) {
 					iterator.remove();
+				} else {
+					IUCN.sanitizeInvalidAreas(tags);
 				}
 			}
 
