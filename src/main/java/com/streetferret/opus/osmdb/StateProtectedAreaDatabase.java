@@ -3,6 +3,7 @@ package com.streetferret.opus.osmdb;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class StateProtectedAreaDatabase {
 
@@ -32,5 +33,14 @@ public class StateProtectedAreaDatabase {
 
 	public TreeMap<String, List<OSMProtectedAreaRecord>> getNameIndex() {
 		return nameIndex;
+	}
+
+	public void removeRecordsNamed(List<String> list) {
+		new TreeSet<String>(list).forEach(this::removeRecordNamed);
+	}
+
+	public void removeRecordNamed(String rec) {
+		List<OSMProtectedAreaRecord> removedRecords = nameIndex.remove(rec);
+		records.removeAll(removedRecords);
 	}
 }

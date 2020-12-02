@@ -1,6 +1,8 @@
 package com.streetferret.opus;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.SortedMap;
 
 import com.streetferret.opus.osmdb.OSMProtectedAreaRecord;
@@ -13,15 +15,20 @@ public class Conflator {
 
 		Iterator<OSMProtectedAreaRecord> it = db.getRecords().iterator();
 
-		while(it.hasNext()) {
+		List<String> conflatedRecordsToRemove = new ArrayList<>();
+
+		while (it.hasNext()) {
 			OSMProtectedAreaRecord osmRec = it.next();
 
-			if(protectedAreaMap.containsKey(osmRec.getName())) {
-				protectedAreaMap.get(osmRec.getName()).getOsmAreas().add(osmRec);
-				it.remove();
+			String name = osmRec.getName();
+
+			if (protectedAreaMap.containsKey(name)) {
+				protectedAreaMap.get(name).getOsmAreas().add(osmRec);
+				conflatedRecordsToRemove.add(name);
 			}
 		}
 		
+		db.removeRecordsNamed(conflatedRecordsToRemove);
 	}
 
 }
