@@ -21,9 +21,6 @@ public class OSMElement {
 	@JsonProperty("tags")
 	private Map<String, String> tags;
 
-	@JsonProperty("bounds")
-	private OSMBounds bounds;
-
 	public Type getType() {
 		return type;
 	}
@@ -46,14 +43,6 @@ public class OSMElement {
 
 	public void setTags(Map<String, String> tags) {
 		this.tags = tags;
-	}
-
-	public OSMBounds getBounds() {
-		return bounds;
-	}
-
-	public void setBounds(OSMBounds bounds) {
-		this.bounds = bounds;
 	}
 
 }

@@ -1,0 +1,8 @@
+[timeout:600][out:json];
+area($AREA)->.searchArea;
+(
+  nwr["leisure"~"^(park|nature_reserve)$"]["name"](area.searchArea);
+  nwr["landuse"~"^(forest|recreation_ground)$"]["name"](area.searchArea);
+  nwr["natural"="wood"]["name"](area.searchArea);
+);
+out tags;

@@ -67,20 +67,12 @@ public class OPUSInspect {
 			StateProtectedAreaDatabase db = OverpassLookup.downloadOSMProtectedAreas(state);
 			System.out.println("Downloaded protected areas for " + state);
 
-			StateProtectedAreaDatabase dbParks = OverpassLookup.downloadOSMLeisurePark(state);
-			System.out.println("Downloaded leisure=park for " + state);
+			StateProtectedAreaDatabase dbOther = OverpassLookup.downloadOSMOther(state);
+			System.out.println("Downloaded other types for " + state);
 
-			StateProtectedAreaDatabase dbNatureReserve = OverpassLookup.downloadOSMLeisureNature(state);
-			System.out.println("Downloaded leisure=nature_reserve for " + state);
-
-			StateProtectedAreaDatabase dbRecGround= OverpassLookup.downloadOSMLeisureNature(state);
-			System.out.println("Downloaded leisure=recreation_ground for " + state);
-
-			Conflator.conflateByName(protectedAreaMap, dbParks, "leisure_park");
-			Conflator.conflateByName(protectedAreaMap, dbNatureReserve, "nature_reserve");
-			Conflator.conflateByName(protectedAreaMap, dbRecGround, "recreation_ground");
 			Conflator.conflateByName(protectedAreaMap, db);
-			// Need to de-dupe conflation
+			Conflator.conflateByName(protectedAreaMap, dbOther);
+			// Need to de-dupe conflation?
 
 			OverpassLookup.populateTaggedUnlistedAreas(state, protectedAreaMap, db);
 			HTMLGenerator.generateHTML(state, protectedAreaMap, db);

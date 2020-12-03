@@ -1,17 +1,21 @@
 package com.streetferret.opus.osmdb;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import com.streetferret.opus.StringUtil;
 import com.streetferret.opus.model.OSMBounds;
 
 public class OSMProtectedAreaRecord {
 	private String type;
 	private long id;
-	private String name = "(untagged)";
-	private String protectClass = null;
-	private String iucnLevel = null;
 	private OSMBounds bounds;
 	private String conflationNote = "";
-	private String conflationType = "";
+	private Map<String, String> tags;
+
+	private static final List<String> CONFLATION_KEYS = Arrays.asList("protect_class", "iucn_level", "leisure",
+			"landuse", "natural");
 
 	public String getType() {
 		return type;
@@ -30,27 +34,8 @@ public class OSMProtectedAreaRecord {
 	}
 
 	public String getName() {
+		String name = getTag("name");
 		return name == null ? "(unnamed)" : StringUtil.cleanAreaName(name);
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getProtectClass() {
-		return protectClass;
-	}
-
-	public void setProtectClass(String protectClass) {
-		this.protectClass = protectClass;
-	}
-
-	public String getIucnLevel() {
-		return iucnLevel;
-	}
-
-	public void setIucnLevel(String iucnLevel) {
-		this.iucnLevel = iucnLevel;
 	}
 
 	public OSMBounds getBounds() {
@@ -72,11 +57,24 @@ public class OSMProtectedAreaRecord {
 		this.conflationNote = conflationNote;
 	}
 
-	public String getConflationType() {
-		return conflationType;
+	public String getTag(String key) {
+		return tags.get(key);
 	}
 
-	public void setConflationType(String conflationType) {
-		this.conflationType = conflationType;
+	public boolean hasTag(String key) {
+		return tags.containsKey(key);
+	}
+
+	public void setTags(Map<String, String> tags) {
+		this.tags = tags;
+	}
+
+	public String getConflationKey() {
+		for(String key: CONFLATION_KEYS) {
+			if(hasTag(key)) {
+				return key;
+			}
+		}
+		return null;
 	}
 }

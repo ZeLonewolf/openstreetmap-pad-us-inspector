@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -20,16 +19,8 @@ public class OverpassLookup {
 		return downloadOSM(state, "state_protected_area_lookup.overpass");
 	}
 
-	static StateProtectedAreaDatabase downloadOSMLeisurePark(String state) throws IOException {
-		return downloadOSM(state, "state_park_lookup.overpass");
-	}
-
-	public static StateProtectedAreaDatabase downloadOSMLeisureNature(String state) throws IOException {
-		return downloadOSM(state, "state_nature_reserve_lookup.overpass");
-	}
-
-	public static StateProtectedAreaDatabase downloadOSMRecGround(String state) throws IOException {
-		return downloadOSM(state, "state_recreation_ground_lookup.overpass");
+	static StateProtectedAreaDatabase downloadOSMOther(String state) throws IOException {
+		return downloadOSM(state, "state_other_lookup.overpass");
 	}
 
 	static StateProtectedAreaDatabase downloadOSM(String state, String query) throws IOException {
@@ -50,12 +41,7 @@ public class OverpassLookup {
 
 			r.setId(area.getId());
 			r.setType(area.getType().toString());
-
-			Map<String, String> tags = area.getTags();
-			r.setName(tags.get("name"));
-			r.setIucnLevel(tags.get("iucn_level"));
-			r.setProtectClass(tags.get("protect_class"));
-			r.setBounds(area.getBounds());
+			r.setTags(area.getTags());
 
 			statePad.getRecords().add(r);
 		}
@@ -121,25 +107,15 @@ public class OverpassLookup {
 				break;
 			}
 
-			switch (record.getConflationType()) {
-			case "leisure_park":
-				item = item.replace("$OBJ_ID", String.valueOf(record.getId())).replace("$KEY", "leisure")
-						.replace("$VALUE", "park").replace("$CONFLATE_NOTE", record.getConflationNote());
-				break;
-			case "nature_reserve":
-				item = item.replace("$OBJ_ID", String.valueOf(record.getId())).replace("$KEY", "leisure")
-						.replace("$VALUE", "nature_reserve").replace("$CONFLATE_NOTE", record.getConflationNote());
-				break;
-			case "recreation_ground":
-				item = item.replace("$OBJ_ID", String.valueOf(record.getId())).replace("$KEY", "leisure")
-						.replace("$VALUE", "recreation_ground").replace("$CONFLATE_NOTE", record.getConflationNote());
-				break;
-			default:
-				String protectClass = record.getProtectClass() == null ? "_" : record.getProtectClass();
-				item = item.replace("$OBJ_ID", String.valueOf(record.getId())).replace("$KEY", "protect_class")
-						.replace("$VALUE", protectClass).replace("$CONFLATE_NOTE", record.getConflationNote());
-				break;
+			String key = record.getConflationKey();
+			if (key == null) {
+				continue;
 			}
+
+			String value = record.getTag(key);
+
+			item = item.replace("$OBJ_ID", String.valueOf(record.getId())).replace("$KEY", key).replace("$VALUE", value)
+					.replace("$CONFLATE_NOTE", record.getConflationNote());
 
 			objectList.append(item);
 		}
