@@ -5,7 +5,7 @@ This project attempts to automate the identification of [IUCN Protected Area Cat
 This utility downloads and parses the USGS Protected Areas Database of the United States (PAD-US), and generates a collection of pages that show the tagging status of IUCN Categories for these areas.  Mappers can use this data as a resource when determining *whether* an area should be tagged with **[protect_class](https://zelonewolf.github.io/openstreetmap-pad-us-inspector/https://wiki.openstreetmap.org/wiki/Key:protect_class)=***.
 
 ### State-by-state Listings
-state/Alabama.html
+
 * [Alabama](https://zelonewolf.github.io/openstreetmap-pad-us-inspector/state/Alabama.html)
 * [Alaska](https://zelonewolf.github.io/openstreetmap-pad-us-inspector/state/Alaska.html)
 * [American Samoa](https://zelonewolf.github.io/openstreetmap-pad-us-inspector/state/American%20Samoa.html)
