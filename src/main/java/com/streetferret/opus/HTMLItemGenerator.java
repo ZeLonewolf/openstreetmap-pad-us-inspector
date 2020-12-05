@@ -1,12 +1,18 @@
 package com.streetferret.opus;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import com.streetferret.opus.location.LocationMatch;
+import com.streetferret.opus.location.LocationMatchSorter;
 
 public class HTMLItemGenerator {
 
 	private static final int MAX_ROWS = 5;
+
+	private static final LocationMatchSorter SORTER = new LocationMatchSorter();
 
 	public static String matchingItemHTML(String name, Collection<LocationMatch> osmMatches, boolean showConflateNote) {
 
@@ -19,7 +25,10 @@ public class HTMLItemGenerator {
 
 		int count = 0;
 
-		for (LocationMatch record : osmMatches) {
+		List<LocationMatch> matches = new ArrayList<>(osmMatches);
+		Collections.sort(matches, SORTER.reversed());
+
+		for (LocationMatch record : matches) {
 
 			if (record.noAreaConflation()) {
 //				continue;
