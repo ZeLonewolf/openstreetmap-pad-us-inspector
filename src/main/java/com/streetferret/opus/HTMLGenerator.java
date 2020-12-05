@@ -57,7 +57,7 @@ public class HTMLGenerator {
 		new File("state").mkdirs();
 
 		File stateHTML = Paths.get("state", StateGeocode.ABBREV_TO_FILENAME.getProperty(state) + ".html").toFile();
-		
+
 		try (PrintStream mdPrint = new PrintStream(stateHTML)) {
 
 			StringBuilder rowBuilder = new StringBuilder();
@@ -80,7 +80,8 @@ public class HTMLGenerator {
 					if (padDetails.isEmpty()) {
 						// OSM unmatched
 
-						String actualUse = HTMLItemGenerator.matchingItemHTML(name, db.getOsmUnmatched().get(name));
+						String actualUse = HTMLItemGenerator.matchingItemHTML(name, db.getOsmUnmatched().get(name),
+								false);
 
 						rowBuilder.append(T_MISSING_ROW.replace("$NAME", name)
 							.replace("$STATE", state)
@@ -91,7 +92,7 @@ public class HTMLGenerator {
 							.flatMap(id -> db.getMatchMap().get(id).stream())
 							.collect(Collectors.toCollection(() -> new TreeSet<LocationMatch>(sameIDCompare)));
 
-						String actualUse = HTMLItemGenerator.matchingItemHTML(name, osmMatches);
+						String actualUse = HTMLItemGenerator.matchingItemHTML(name, osmMatches, true);
 
 						rowBuilder.append(printMatchingRow(padDetails, db, name).replace("$OSM_OBJECTS", actualUse));
 					}
