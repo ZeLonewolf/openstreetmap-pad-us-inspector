@@ -51,4 +51,15 @@ public class OSMProtectedAreaLookupResults {
 		List<LocationMatch> removedRecords = nameIndex.remove(rec);
 		records.removeAll(removedRecords);
 	}
+
+	public void removeAssociatedAreas(LocationDatabase db) {
+		db.getMatchMap()
+			.entries()
+			.stream()
+			.map(e -> e.getValue())
+			.filter(LocationMatch::noAreaConflation)
+			.map(LocationMatch::getId)
+			.forEach(this::removeByID);
+		index();
+	}
 }
