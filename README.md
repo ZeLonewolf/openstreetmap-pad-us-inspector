@@ -58,7 +58,7 @@ This utility downloads and parses the USGS Protected Areas Database of the Unite
 * [Tennessee](https://zelonewolf.github.io/openstreetmap-pad-us-inspector/state/Tennessee.html)
 * [Texas](https://zelonewolf.github.io/openstreetmap-pad-us-inspector/state/Texas.html)
 * [United States Minor Outlying Islands](https://zelonewolf.github.io/openstreetmap-pad-us-inspector/state/US_Minor_Outlying_Islands.html)
-* [United States Virgin Islands](https://zelonewolf.github.io/openstreetmap-pad-us-inspector/state/United_States_Virgin_Islands.html)
+* [United States Virgin Islands](https://zelonewolf.github.io/openstreetmap-pad-us-inspector/state/US_Virgin_Islands.html)
 * [Utah](https://zelonewolf.github.io/openstreetmap-pad-us-inspector/state/Utah.html)
 * [Vermont](https://zelonewolf.github.io/openstreetmap-pad-us-inspector/state/Vermont.html)
 * [Virginia](https://zelonewolf.github.io/openstreetmap-pad-us-inspector/state/Virginia.html)
