@@ -104,9 +104,15 @@ public class LocationMatch {
 	}
 
 	public String getConflationNote(String name) {
+		StringBuilder sb = new StringBuilder();
 		if (name.equals(getName())) {
-			return "exact name";
+			sb.append("exact name, ");
 		}
+		sb.append(getGeoConflation());
+		return sb.toString();
+	}
+
+	private String getGeoConflation() {
 		if (matchExact >= 0.75) {
 			String pct = pctFormat.format(matchExact);
 			return pct + " identical";
@@ -119,7 +125,7 @@ public class LocationMatch {
 			String pct = pctFormat.format(matchOverlap);
 			return pct + " within";
 		}
-		return null;
+		return "";
 	}
 
 	public boolean isMatched() {
