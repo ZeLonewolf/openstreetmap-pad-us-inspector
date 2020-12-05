@@ -1,10 +1,12 @@
 package com.streetferret.opus.location;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.streetferret.opus.StringUtil;
 
@@ -104,12 +106,15 @@ public class LocationMatch {
 	}
 
 	public String getConflationNote(String name) {
-		StringBuilder sb = new StringBuilder();
+		List<String> conflateParts = new ArrayList<>();
 		if (name.equals(getName())) {
-			sb.append("exact name, ");
+			conflateParts.add("exact name");
 		}
-		sb.append(getGeoConflation());
-		return sb.toString();
+		String numConflation = getGeoConflation();
+		if (!numConflation.isBlank()) {
+			conflateParts.add(numConflation);
+		}
+		return conflateParts.stream().collect(Collectors.joining(", "));
 	}
 
 	private String getGeoConflation() {
