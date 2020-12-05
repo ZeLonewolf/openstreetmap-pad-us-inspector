@@ -18,7 +18,10 @@ public class StringUtil {
 	}
 
 	public static String cleanAreaName(String name) {
-		return name.replace("_", " ").replace("\"", "").replace("*", "").replace("–", "-")
-				.replaceAll("([A-Za-z])\\s*,\\s*([A-Za-z])", "$1, $2");
+		return name.replace("_", " ")
+			.replace("\"", "")
+			.replace("*", "")
+			.replace("–", "-")
+			.replaceAll("([A-Za-z])\\s*,\\s*([A-Za-z])", "$1, $2");
 	}
 }

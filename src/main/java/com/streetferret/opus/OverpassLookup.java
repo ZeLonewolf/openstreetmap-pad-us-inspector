@@ -2,40 +2,30 @@ package com.streetferret.opus;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.streetferret.opus.location.LocationMatch;
 import com.streetferret.opus.model.OSMElement;
 import com.streetferret.opus.model.OSMResponse;
-import com.streetferret.opus.osmdb.OSMProtectedAreaRecord;
-import com.streetferret.opus.osmdb.StateProtectedAreaDatabase;
+import com.streetferret.opus.osmdb.OSMProtectedAreaLookupResults;
 
 public class OverpassLookup {
 
-	static StateProtectedAreaDatabase downloadOSMProtectedAreas(String state) throws IOException {
+	static OSMProtectedAreaLookupResults downloadOSMProtectedAreas(String state) throws IOException {
 		return downloadOSM(state, "state_protected_area_lookup.overpass");
 	}
 
-	static StateProtectedAreaDatabase downloadOSMLeisurePark(String state) throws IOException {
-		return downloadOSM(state, "state_park_lookup.overpass");
-	}
-
-	public static StateProtectedAreaDatabase downloadOSMLeisureNature(String state) throws IOException {
-		return downloadOSM(state, "state_nature_reserve_lookup.overpass");
-	}
-
-	public static StateProtectedAreaDatabase downloadOSMRecGround(String state) throws IOException {
-		return downloadOSM(state, "state_recreation_ground_lookup.overpass");
-	}
-
-	static StateProtectedAreaDatabase downloadOSM(String state, String query) throws IOException {
+	static OSMProtectedAreaLookupResults downloadOSM(String state, String query) throws IOException {
 		InputStream inputStream = OverpassLookup.class.getResourceAsStream("/" + query);
 		String opNameTemplate = StringUtil.readFromInputStream(inputStream);
-		opNameTemplate = opNameTemplate.replace("$AREA", StateGeocode.LIST.getProperty(state).trim());
+
+		String areaID = StateGeocode.ABBREV_TO_AREA_ID.getProperty(state);
+		if (areaID == null) {
+			System.err.println("Missing area ID mapping for " + state);
+			System.exit(-1);
+		}
+		opNameTemplate = opNameTemplate.replace("$AREA", areaID.trim());
 
 		String areasLookup = RestUtil.queryOverpass(opNameTemplate);
 
@@ -43,19 +33,15 @@ public class OverpassLookup {
 		mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
 		OSMResponse areas = mapper.readValue(areasLookup, OSMResponse.class);
-		StateProtectedAreaDatabase statePad = new StateProtectedAreaDatabase();
+		OSMProtectedAreaLookupResults statePad = new OSMProtectedAreaLookupResults();
 
 		for (OSMElement area : areas.getElements()) {
-			OSMProtectedAreaRecord r = new OSMProtectedAreaRecord();
+			LocationMatch r = new LocationMatch();
 
 			r.setId(area.getId());
 			r.setType(area.getType().toString());
-
-			Map<String, String> tags = area.getTags();
-			r.setName(tags.get("name"));
-			r.setIucnLevel(tags.get("iucn_level"));
-			r.setProtectClass(tags.get("protect_class"));
-			r.setBounds(area.getBounds());
+			r.setTags(area.getTags());
+			r.setMatched(false);
 
 			statePad.getRecords().add(r);
 		}
@@ -64,86 +50,4 @@ public class OverpassLookup {
 		return statePad;
 	}
 
-	static void populateTaggedUnlistedAreas(String state, SortedMap<String, ProtectedAreaConflation> protectedAreaMap,
-			StateProtectedAreaDatabase osmData) throws IOException {
-
-		osmData.getNameIndex().entrySet().forEach(e -> {
-			ProtectedAreaConflation c = new ProtectedAreaConflation();
-			ProtectedAreaTagging t = new ProtectedAreaTagging();
-			String name = e.getKey();
-
-			t.setName(name);
-			t.setIucnClass("Not Found");
-
-			c.setOsmAreas(e.getValue());
-			c.setPadAreas(Arrays.asList(t));
-
-			protectedAreaMap.put(name, c);
-		});
-	}
-
-	public static String overpassProtectedAreaLookupHTML(List<OSMProtectedAreaRecord> records) throws IOException {
-
-		if (records.isEmpty()) {
-			return "";
-		}
-
-		StringBuilder objectList = new StringBuilder();
-		objectList.append("<ul>");
-
-		int count = 0;
-
-		for (OSMProtectedAreaRecord record : records) {
-
-			++count;
-
-			if (count == 4 && records.size() > 4) {
-				int unlistedCount = records.size() - 3;
-
-				objectList.append("<li>plus <b>");
-				objectList.append(unlistedCount);
-				objectList.append("</b> more</li>");
-				objectList.append("</ul>");
-				return objectList.toString();
-			}
-
-			String item = "";
-
-			switch (record.getType()) {
-			case "relation":
-				item = HTMLGenerator.T_REL_ITEM;
-				break;
-			case "way":
-				item = HTMLGenerator.T_WAY_ITEM;
-				break;
-			case "node":
-				item = HTMLGenerator.T_NODE_ITEM;
-				break;
-			}
-
-			switch (record.getConflationType()) {
-			case "leisure_park":
-				item = item.replace("$OBJ_ID", String.valueOf(record.getId())).replace("$KEY", "leisure")
-						.replace("$VALUE", "park").replace("$CONFLATE_NOTE", record.getConflationNote());
-				break;
-			case "nature_reserve":
-				item = item.replace("$OBJ_ID", String.valueOf(record.getId())).replace("$KEY", "leisure")
-						.replace("$VALUE", "nature_reserve").replace("$CONFLATE_NOTE", record.getConflationNote());
-				break;
-			case "recreation_ground":
-				item = item.replace("$OBJ_ID", String.valueOf(record.getId())).replace("$KEY", "leisure")
-						.replace("$VALUE", "recreation_ground").replace("$CONFLATE_NOTE", record.getConflationNote());
-				break;
-			default:
-				String protectClass = record.getProtectClass() == null ? "_" : record.getProtectClass();
-				item = item.replace("$OBJ_ID", String.valueOf(record.getId())).replace("$KEY", "protect_class")
-						.replace("$VALUE", protectClass).replace("$CONFLATE_NOTE", record.getConflationNote());
-				break;
-			}
-
-			objectList.append(item);
-		}
-
-		return objectList.toString();
-	}
 }
