@@ -8,7 +8,7 @@ public class HTMLItemGenerator {
 
 	private static final int MAX_ROWS = 5;
 
-	public static String matchingItemHTML(String name, Collection<LocationMatch> osmMatches) {
+	public static String matchingItemHTML(String name, Collection<LocationMatch> osmMatches, boolean showConflateNote) {
 
 		if (osmMatches.isEmpty()) {
 			return "";
@@ -24,7 +24,8 @@ public class HTMLItemGenerator {
 			if (record.noAreaConflation()) {
 //				continue;
 			}
-			String conflationNote = record.getConflationNote(name);
+
+			String conflationNote = showConflateNote ? record.getConflationNote(name) : "";
 
 			++count;
 
