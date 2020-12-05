@@ -21,10 +21,10 @@ public class HTMLItemGenerator {
 
 		for (LocationMatch record : osmMatches) {
 
-			String conflation = record.getConflationNote(name);
-			if (conflation == null) {
-				continue;
+			if (record.noAreaConflation()) {
+//				continue;
 			}
+			String conflationNote = record.getConflationNote(name);
 
 			++count;
 
@@ -68,7 +68,7 @@ public class HTMLItemGenerator {
 				.replace("$KEY", key)
 				.replace("$VALUE", value)
 				.replace("$NAME", itemName)
-				.replace("$CONFLATE_NOTE", conflation);
+				.replace("$CONFLATE_NOTE", conflationNote);
 
 			objectList.append(item);
 		}

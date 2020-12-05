@@ -118,19 +118,17 @@ public class LocationMatch {
 	}
 
 	private String getGeoConflation() {
-		if (matchExact >= 0.75) {
+		if (matchExact >= 0.50) {
 			String pct = pctFormat.format(matchExact);
 			return pct + " identical";
 		}
-		if (matchInside >= 0.95) {
+		if (matchInside >= matchOverlap) {
 			String pct = pctFormat.format(matchInside);
 			return pct + " overlaps";
-		}
-		if (matchOverlap >= 0.95) {
+		} else {
 			String pct = pctFormat.format(matchOverlap);
 			return pct + " within";
 		}
-		return "";
 	}
 
 	public boolean isMatched() {
