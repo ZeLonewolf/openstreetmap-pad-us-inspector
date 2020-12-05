@@ -3,16 +3,23 @@ package com.streetferret.opus;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import com.streetferret.opus.osmdb.StateProtectedAreaDatabase;
+import org.apache.commons.lang3.StringUtils;
+
+import com.streetferret.opus.location.LocationDatabase;
+import com.streetferret.opus.location.LocationMatch;
+import com.streetferret.opus.location.PADDetails;
 
 public class HTMLGenerator {
 
@@ -24,6 +31,8 @@ public class HTMLGenerator {
 	static String T_REL_ITEM;
 	static String T_WAY_ITEM;
 	static String T_NODE_ITEM;
+
+	private static Comparator<LocationMatch> sameIDCompare = Comparator.comparing(LocationMatch::getId);
 
 	static {
 		try {
@@ -39,72 +48,123 @@ public class HTMLGenerator {
 	}
 
 	private static String loadFragment(String fragment) throws IOException {
-		return StringUtil.readFromInputStream(
-				HTMLGenerator.class.getResourceAsStream("/html-template" + File.separator + fragment));
+		return StringUtil
+			.readFromInputStream(HTMLGenerator.class.getResourceAsStream("/html-template" + File.separator + fragment));
 	}
 
-	public static void generateHTML(String state, SortedMap<String, ProtectedAreaConflation> protectedAreaMap,
-			StateProtectedAreaDatabase db) throws IOException {
+	public static void generateHTML(String state, LocationDatabase db) throws IOException {
 
 		new File("state").mkdirs();
 
-		try (PrintStream mdPrint = new PrintStream("state" + File.separator + state + ".html")) {
+		File stateHTML = Paths.get("state", StateGeocode.ABBREV_TO_FILENAME.getProperty(state) + ".html").toFile();
+		
+		try (PrintStream mdPrint = new PrintStream(stateHTML)) {
 
 			StringBuilder rowBuilder = new StringBuilder();
 
-			protectedAreaMap.entrySet().forEach(e -> {
+			db.getNameMap()
+				.asMap()
+				.entrySet()
+				.stream()
+				.sorted((e1, e2) -> StringUtils.compare(e1.getKey(), (e2.getKey())))
+				.forEach(row -> {
 
-				ProtectedAreaConflation c = e.getValue();
+					String name = row.getKey();
+					Collection<Long> padIDs = row.getValue();
 
-				Set<String> padClasses = new TreeSet<>();
+					List<PADDetails> padDetails = padIDs.stream()
+						.map(id -> db.getPadDetails().get(id))
+						.filter(Objects::nonNull)
+						.collect(Collectors.toList());
 
-				for (ProtectedAreaTagging tagging : c.getPadAreas()) {
-					padClasses.add(tagging.getIucnClass());
-				}
+					if (padDetails.isEmpty()) {
+						// OSM unmatched
 
-				ProtectedAreaTagging defaultTagging = c.getPadAreas().get(0);
+						String actualUse = HTMLItemGenerator.matchingItemHTML(name, db.getOsmUnmatched().get(name));
 
-				String padClassStr = padClasses.stream().collect(Collectors.joining(", "));
-
-				String colorStyle = getRowColor(padClasses);
-				String name = e.getKey();
-				if (name.isEmpty()) {
-					name = "(unnamed)";
-				}
-				String actualUse = "";
-
-				try {
-					actualUse = OverpassLookup.overpassProtectedAreaLookupHTML(c.getDistinctOsmAreas());
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-
-				if ("Not Found".equals(padClassStr)) {
-					rowBuilder.append(T_MISSING_ROW.replace("$NAME", name).replace("$STATE", state)
+						rowBuilder.append(T_MISSING_ROW.replace("$NAME", name)
+							.replace("$STATE", state)
 							.replace("$OSM_OBJECTS", actualUse));
 
-				} else {
-					rowBuilder.append(T_PAD_ROW.replace("$NAME", name).replace("$ROW_STYLE", colorStyle)
-							.replace("$LON1", String.valueOf(defaultTagging.getMinLon()))
-							.replace("$LAT1", String.valueOf(defaultTagging.getMinLat()))
-							.replace("$LON2", String.valueOf(defaultTagging.getMaxLon()))
-							.replace("$LAT2", String.valueOf(defaultTagging.getMaxLat()))
-							.replace("$LAT2", String.valueOf(defaultTagging.getMaxLat()))
-							.replace("$OWNER_TYPE", defaultTagging.getOwnership())
-							.replace("$OWNER", defaultTagging.getOwner())
-							.replace("$OPERATOR", defaultTagging.getOperator())
-							.replace("$ACCESS", defaultTagging.getAccess())
-							.replace("$IUCN", String.valueOf(padClassStr)).replace("$OSM_OBJECTS", actualUse));
-				}
-			});
+					} else {
+						Set<LocationMatch> osmMatches = padIDs.stream()
+							.flatMap(id -> db.getMatchMap().get(id).stream())
+							.collect(Collectors.toCollection(() -> new TreeSet<LocationMatch>(sameIDCompare)));
 
-			String page = T_STATE_PAGE.replace("$STATE", state).replace("$DATE", sdf.format(new Date()))
-					.replace("$TABLE", rowBuilder.toString());
+						String actualUse = HTMLItemGenerator.matchingItemHTML(name, osmMatches);
+
+						rowBuilder.append(printMatchingRow(padDetails, db, name).replace("$OSM_OBJECTS", actualUse));
+					}
+				});
+
+			String page = T_STATE_PAGE.replace("$STATE", state)
+				.replace("$DATE", sdf.format(new Date()))
+				.replace("$TABLE", rowBuilder.toString());
 
 			mdPrint.println(page);
 		}
 		System.out.println("Generated html for " + state);
+	}
+
+	private static String printMatchingRow(List<PADDetails> padDetails, LocationDatabase db, String name) {
+
+		Set<String> padClasses = padDetails.stream()
+			.map(PADDetails::getIucn)
+			.map(s -> s.replace("Other Conservation Area", "Other"))
+			.map(s -> s.replace("Unassigned", "Other"))
+			.sorted()
+			.collect(Collectors.toSet());
+
+		Set<String> padOwners = padDetails.stream().map(PADDetails::getOwner).sorted().collect(Collectors.toSet());
+
+		Set<String> padOwnerTypes = padDetails.stream()
+			.map(PADDetails::getOwnershipType)
+			.filter(Objects::nonNull)
+			.filter(s -> !s.isBlank())
+			.sorted()
+			.collect(Collectors.toSet());
+
+		Set<String> padOperators = padDetails.stream()
+			.map(PADDetails::getOperator)
+			.filter(Objects::nonNull)
+			.filter(s -> !s.isBlank())
+			.sorted()
+			.collect(Collectors.toSet());
+
+		double n = padDetails.stream().mapToDouble(PADDetails::getNorth).max().getAsDouble();
+		double e = padDetails.stream().mapToDouble(PADDetails::getEast).max().getAsDouble();
+		double s = padDetails.stream().mapToDouble(PADDetails::getSouth).min().getAsDouble();
+		double w = padDetails.stream().mapToDouble(PADDetails::getWest).min().getAsDouble();
+
+		boolean hasIUCN = padClasses.stream().filter(IUCN.VALID_IUCN::contains).findFirst().isPresent();
+		if (!hasIUCN) {
+			return "";
+		}
+
+		String padClassStr = commaSeparated(padClasses);
+
+		String colorStyle = getRowColor(padClasses);
+
+		if (name.isEmpty()) {
+			name = "(unnamed)";
+		}
+
+		String owner = bulletSeparated(padOwners);
+		String operator = bulletSeparated(padOperators);
+		String ownerType = commaSeparated(padOwnerTypes);
+
+		return new StringBuilder()
+			.append(T_PAD_ROW.replace("$NAME", name)
+				.replace("$ROW_STYLE", colorStyle)
+				.replace("$LON1", String.valueOf(w))
+				.replace("$LAT1", String.valueOf(s))
+				.replace("$LON2", String.valueOf(e))
+				.replace("$LAT2", String.valueOf(n))
+				.replace("$OWNER_TYPE", ownerType)
+				.replace("$OWNER_NAME", owner)
+				.replace("$OPERATOR", operator)
+				.replace("$IUCN", String.valueOf(padClassStr)))
+			.toString();
 	}
 
 	private static String getRowColor(Set<String> padClasses) {
@@ -114,7 +174,7 @@ public class HTMLGenerator {
 		if (padClasses.size() > 1) {
 
 			int px = 0;
-			StringBuilder grad = new StringBuilder("background: repeating-linear-gradient(135deg,");
+			StringBuilder grad = new StringBuilder("style=\"background: repeating-linear-gradient(135deg,");
 
 			List<String> cssFrags = new ArrayList<>();
 
@@ -126,13 +186,13 @@ public class HTMLGenerator {
 			}
 
 			grad.append(cssFrags.stream().collect(Collectors.joining(",")));
-			grad.append(");");
+			grad.append(");\"");
 
 			return grad.toString();
 
 		}
 
-		return "background-color: " + iucnToColor(padClasses.iterator().next());
+		return "style=\"background-color: " + iucnToColor(padClasses.iterator().next()) + "\"";
 	}
 
 	private static String iucnToColor(String iucn) {
@@ -155,31 +215,17 @@ public class HTMLGenerator {
 		return "#fff";
 	}
 
-//	public static void generateSummaryWiki(SortedMap<String, Integer> map) throws IOException {
-//		int total = map.values().stream().collect(Collectors.summingInt(Integer::intValue));
-//		StringBuilder row = new StringBuilder();
-//
-//		row.append("|-\n");
-//
-//		map.entrySet().forEach(e -> {
-//			row.append("|[[United_States/Public_lands/PAD-US/");
-//			row.append(e.getKey());
-//			row.append("]]\n");
-//
-//			row.append("|");
-//			row.append(e.getValue());
-//			row.append("\n");
-//		});
-//
-//		try (PrintStream wikiPrint = new PrintStream("output" + File.separator + "_summary.wiki")) {
-//
-//			InputStream inputStream = MDGenerator.class.getResourceAsStream("/summary.wiki");
-//			String wikiTemplate = StringUtil.readFromInputStream(inputStream);
-//			wikiTemplate = wikiTemplate.replace("$TOTAL", String.valueOf(total));
-//			wikiTemplate = wikiTemplate.replace("$DATE", sdf.format(new Date()));
-//			wikiTemplate = wikiTemplate.replace("$TABLE", row.toString());
-//
-//			wikiPrint.println(wikiTemplate);
-//		}
-//	}
+	private static String commaSeparated(Collection<String> c) {
+		return c.stream().collect(Collectors.joining(", "));
+	}
+
+	private static String bulletSeparated(Collection<String> c) {
+		if (c.isEmpty()) {
+			return "";
+		}
+		if (c.size() == 1) {
+			return c.iterator().next();
+		}
+		return "<ul><li>" + c.stream().collect(Collectors.joining("</li><li>")) + "</li></ul>";
+	}
 }

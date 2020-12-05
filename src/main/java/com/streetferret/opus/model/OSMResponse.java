@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OSMResponse {
-	
+
 	@JsonProperty("elements")
 	private List<OSMElement> elements;
 

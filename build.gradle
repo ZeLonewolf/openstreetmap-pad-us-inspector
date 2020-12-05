@@ -6,7 +6,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven { url "http://jfgdb.s3-website-eu-west-1.amazonaws.com/maven2"}
 }
 
 sourceCompatibility = 1.8
@@ -22,6 +21,7 @@ dependencies {
 	compile "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
 	compile "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
 	compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    compile "org.apache.commons:commons-collections4:4.4"
 	compile "com.opencsv:opencsv:5.3"
 }
 
