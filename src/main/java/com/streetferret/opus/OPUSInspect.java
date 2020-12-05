@@ -15,8 +15,11 @@ public class OPUSInspect {
 
 	public static void main(String... args) throws Exception {
 
-		if ("-parse".equals(args[0])) {
-			parse(args[1]);
+		if ("-generate".equals(args[0])) {
+			parse(args[1], false);
+		}
+		if ("-regenerate".equals(args[0])) {
+			parse(args[1], true);
 		}
 		if ("-download".equals(args[0])) {
 			download();
@@ -32,7 +35,7 @@ public class OPUSInspect {
 
 	private static List<String> SKIP_STATES = Arrays.asList("UNKF");
 
-	private static void parse(String overpassURL) throws Exception {
+	private static void parse(String overpassURL, boolean regenerate) throws Exception {
 
 		RestUtil.OVERPASS_API = overpassURL;
 
@@ -44,9 +47,12 @@ public class OPUSInspect {
 				return;
 			}
 
-			File stateHTML = Paths.get("state", StateGeocode.ABBREV_TO_FILENAME.getProperty(state) + ".html").toFile();
-			if (stateHTML.exists()) {
-				return;
+			if (!regenerate) {
+				File stateHTML = Paths.get("state", StateGeocode.ABBREV_TO_FILENAME.getProperty(state) + ".html")
+					.toFile();
+				if (stateHTML.exists()) {
+					return;
+				}
 			}
 
 			LocationDatabase db = ConflationCSV.load(state);
