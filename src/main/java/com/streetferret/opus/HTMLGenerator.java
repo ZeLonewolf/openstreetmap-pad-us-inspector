@@ -6,6 +6,7 @@ import java.io.PrintStream;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -28,6 +29,8 @@ public class HTMLGenerator {
 	private static String T_STATE_PAGE;
 	private static String T_MISSING_ROW;
 	private static String T_PAD_ROW;
+	private static String T_LEGEND_ROW;
+	private static String T_LEGEND_OTHER_ROW;
 	static String T_REL_ITEM;
 	static String T_WAY_ITEM;
 	static String T_NODE_ITEM;
@@ -39,6 +42,8 @@ public class HTMLGenerator {
 			T_STATE_PAGE = loadFragment("state-page.html");
 			T_MISSING_ROW = loadFragment("missing-row.html");
 			T_PAD_ROW = loadFragment("pad-row.html");
+			T_LEGEND_ROW = loadFragment("legend-row.html");
+			T_LEGEND_OTHER_ROW = loadFragment("legend-row-other.html");
 			T_REL_ITEM = loadFragment("relation-item.html");
 			T_WAY_ITEM = loadFragment("way-item.html");
 			T_NODE_ITEM = loadFragment("node-item.html");
@@ -98,8 +103,22 @@ public class HTMLGenerator {
 					}
 				});
 
+			// Build legend
+			StringBuilder legend = new StringBuilder();
+			legend.append(getLegendRow(Arrays.asList("Ia"), "IUCN Category Ia: Strict Nature Reserve", "1a"));
+			legend.append(getLegendRow(Arrays.asList("Ib"), "IUCN Category Ib: Wilderness", "1b"));
+			legend.append(getLegendRow(Arrays.asList("II"), "IUCN Category II: National Park", "2"));
+			legend.append(getLegendRow(Arrays.asList("III"), "IUCN Category III: Natural Monument or Feature", "3"));
+			legend.append(getLegendRow(Arrays.asList("IV"), "IUCN Category IV: Habitat/Species Management Area", "4"));
+			legend.append(getLegendRow(Arrays.asList("V"), "IUCN Category V: Protected Landscape/Seascape", "5"));
+			legend.append(getLegendRow(Arrays.asList("VI"),
+					"IUCN Category VI: Protected Area with Sustainable Use of Natural Resources", "6"));
+			legend.append(getOtherRow(Arrays.asList("Other"), "No assigned IUCN Category", ""));
+			legend.append(getOtherRow(Arrays.asList("Ia", "IV", "V"), "Multiple categories", ""));
+
 			String page = T_STATE_PAGE.replace("$STATE", state)
 				.replace("$DATE", sdf.format(new Date()))
+				.replace("$LEGEND_ROWS", legend.toString())
 				.replace("$TABLE", rowBuilder.toString());
 
 			mdPrint.println(page);
@@ -168,7 +187,27 @@ public class HTMLGenerator {
 			.toString();
 	}
 
-	private static String getRowColor(Set<String> padClasses) {
+	private static String getLegendRow(Collection<String> iucns, String legend, String protectClass) {
+		String row = T_LEGEND_ROW;
+		row = row.replace("$STYLE", getRowColor(iucns))
+			.replace("$IUCN", iucns.stream().collect(Collectors.joining(", ")))
+			.replace("$DESCRIPTION", legend)
+			.replace("$PROTECT_CLASS", protectClass);
+
+		return row;
+	}
+
+	private static String getOtherRow(Collection<String> iucns, String legend, String other) {
+		String row = T_LEGEND_OTHER_ROW;
+		row = row.replace("$STYLE", getRowColor(iucns))
+			.replace("$IUCN", iucns.stream().collect(Collectors.joining(", ")))
+			.replace("$DESCRIPTION", legend)
+			.replace("$OTHER", other);
+
+		return row;
+	}
+
+	private static String getRowColor(Collection<String> padClasses) {
 
 		int stripeSize = 25;
 
