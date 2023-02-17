@@ -13,7 +13,7 @@ import com.streetferret.opus.osmdb.OSMProtectedAreaLookupResults;
 public class OverpassLookup {
 
 	static OSMProtectedAreaLookupResults downloadOSMProtectedAreas(String state) throws IOException {
-		return downloadOSM(state, "state_protected_area_lookup.overpass");
+		return downloadOSM(state, "state_protected_area_lookup.overpassql");
 	}
 
 	static OSMProtectedAreaLookupResults downloadOSM(String state, String query) throws IOException {
